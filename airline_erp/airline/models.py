@@ -10,7 +10,7 @@ class FareClass(models.Model):
         return f"{self.name} class"
 
 
-class BaggagePrices(models.Model):
+class BaggagePrice(models.Model):
     fare_class = models.ForeignKey(FareClass, on_delete=models.CASCADE, related_name="baggage_prices")
     first_bag_price = models.DecimalField(max_digits=5, decimal_places=2)
     second_bag_price = models.DecimalField(max_digits=5, decimal_places=2)

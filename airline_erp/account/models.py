@@ -4,12 +4,6 @@ from django.utils.translation import gettext as _
 
 from .managers import CustomUserManager
 
-import django
-import os
-
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'airline_erp.airline_erp.settings')
-django.setup()
-
 from django.conf import settings
 
 
@@ -35,3 +29,4 @@ class PassengerProfile(models.Model):
 
 class StaffProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    airport = models.ForeignKey('airline.Airport', on_delete=models.CASCADE, related_name="staff", null=True)

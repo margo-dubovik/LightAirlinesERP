@@ -64,7 +64,7 @@ ROOT_URLCONF = 'airline_erp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates', BASE_DIR / 'airline_erp' / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

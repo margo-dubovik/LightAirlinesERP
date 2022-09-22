@@ -3,9 +3,9 @@ from django.contrib.contenttypes.models import ContentType
 
 from .models import StaffProfile
 
-gate_managers = Group.objects.get_or_create(name='Gate Managers')
-check_in_managers = Group.objects.get_or_create(name='Check-in Managers')
-supervisors = Group.objects.get_or_create(name='Supervisors')
+gate_managers, gate_managers_created = Group.objects.get_or_create(name='Gate Managers')
+check_in_managers, check_in_managers_created = Group.objects.get_or_create(name='Check-in Managers')
+supervisors, supervisors_created = Group.objects.get_or_create(name='Supervisors')
 ct = ContentType.objects.get_for_model(StaffProfile)
 
 register_passenger_boarding = Permission.objects.create(codename='can_register_boarding',
