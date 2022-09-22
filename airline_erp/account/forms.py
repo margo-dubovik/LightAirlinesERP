@@ -22,5 +22,4 @@ class PassengerSignUpForm(UserCreationForm):
         user.last_name = self.cleaned_data['last_name']
         if commit:
             user.save()
-            passenger = PassengerProfile.objects.create(user=user)
         return user

@@ -24,9 +24,15 @@ User = settings.AUTH_USER_MODEL
 
 
 class PassengerProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="passenger_profile")
+
+    def __str__(self):
+        return f"{self.user} passenger profile"
 
 
 class StaffProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="staff_profile")
     airport = models.ForeignKey('airline.Airport', on_delete=models.CASCADE, related_name="staff", null=True)
+
+    def __str__(self):
+        return f"{self.user} passenger profile"
