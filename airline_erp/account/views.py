@@ -35,17 +35,43 @@ def passenger_login(request):
             user = authenticate(username=cd['email'], password=cd['password'])
             if user is not None:
                 if user.is_active:
-                    login(request, user)
-                    messages.success(request, 'Logged in successfully')
-                    return redirect(reverse('home-view'))
+                    if not user.is_staff:
+                        login(request, user)
+                        messages.success(request, 'Logged in successfully')
+                        return redirect(reverse('home-view'))
+                    else:
+                        messages.error(request, 'This account is not a passenger! Please use "Staff Log In" ')
+                        return redirect(reverse('staff-login'))
                 else:
                     messages.error(request, 'The account is deactivated')
             else:
                 messages.error(request, 'user not found')
-        return render(request, 'account/passenger_login.html', {'form': form})
+        return render(request, 'account/login.html', {'form': form, 'login_title': 'Log In', })
     else:
         form = LoginForm()
-    return render(request, 'account/passenger_login.html', {'form': form})
+    return render(request, 'account/login.html', {'form': form, 'login_title': 'Log In', })
+
+
+def staff_login(request):
+    if request.method == 'POST':
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            user = authenticate(username=cd['email'], password=cd['password'])
+            if user is not None:
+                if user.is_staff:
+                    login(request, user)
+                    messages.success(request, 'Logged in successfully')
+                    return redirect(reverse('home-view'))
+                else:
+                    messages.error(request, 'This account is not a staff member! Please use "Log In"')
+                    return redirect(reverse('passenger-login'))
+            else:
+                messages.error(request, 'user not found')
+        return render(request, 'account/login.html', {'form': form, 'login_title': 'Staff Log In', })
+    else:
+        form = LoginForm()
+    return render(request, 'account/login.html', {'form': form, 'login_title': 'Staff Log In', })
 
 
 def user_logout(request):
