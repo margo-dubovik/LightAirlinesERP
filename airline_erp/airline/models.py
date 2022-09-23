@@ -34,9 +34,10 @@ class Airport(models.Model):
     iata = models.CharField(max_length=3)
     name = models.CharField(max_length=150)
     city = models.CharField(max_length=150)
+    country_code = models.CharField(max_length=2)
 
     def __str__(self):
-        return f"{self.name}, {self.city}, {self.iata}"
+        return f"{self.name}, {self.iata}, {self.city}, {self.country_code}"
 
 
 class Flight(models.Model):
@@ -54,6 +55,15 @@ class Flight(models.Model):
 
     def __str__(self):
         return f"{self.origin} -> {self.destination}, {self.departure_time}"
+
+    def economy_class_seats_available(self):
+        return self.airplane.economy_class_seats - self.economy_class_seats_occupied
+
+    def first_class_seats_available(self):
+        return self.airplane.first_class_seats - self.first_class_seats_occupied
+
+    def business_class_seats_available(self):
+        return self.airplane.business_class_seats - self.business_class_seats_occupied
 
 
 class Booking(models.Model):
