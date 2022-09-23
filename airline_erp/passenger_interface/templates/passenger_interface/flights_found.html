@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="container">
+    <h2>Results of your search:</h2>
+    <ul class="list-group">
+    {% for result in results %}
+        <li class="list-group-item">{{ result }}</li>
+    {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

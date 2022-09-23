@@ -14,8 +14,12 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
+        {{ form.media }}
         <button type="submit">Find tickets</button>
     </form>
 </div>
+
+
+
 
 {% endblock %}
