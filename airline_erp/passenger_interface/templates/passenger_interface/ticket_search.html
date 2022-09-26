@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block body %}
+<h1>Welcome to LightAirlines!</h1>
+
+<div class="container">
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <h2>Wrong search data:</h2>
+        {{ form.errors }}
+    </div>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ form.media }}
+        <button type="submit">Find tickets</button>
+    </form>
+</div>
+
+{% if not initial %}
+<div class="container">
+    <h2>Results of your search:</h2>
+    <ul class="list-group">
+    {% for flight in results %}
+        <li class="list-group-item">
+            <p>{{ flight }}</p>
+            <p>duration: {{ flight.duration }}</p>
+            <a href="{% url 'tickets-form' %}?flight_id={{ flight.id }}&n_passengers={{ form_data.n_passengers }}" class="btn btn-primary">
+                Order tickets</a>
+        </li>
+    {% empty %}
+        <p>No flights found. Try different search parameters</p>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+
+
+{% endblock %}
