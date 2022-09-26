@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -88,6 +89,7 @@ def ticket_search(request):
         return render(request, "passenger_interface/ticket_search.html", {'form': form, 'initial': True})
 
 
+@login_required
 def tickets_form(request):
     n_passengers = int(request.GET.get('n_passengers'))
     TicketsFormset = formset_factory(TicketForm, extra=n_passengers)

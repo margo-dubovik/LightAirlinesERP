@@ -19,7 +19,7 @@ def passenger_signup(request):
             passenger_profile = PassengerProfile.objects.create(user=user)
             login(request, user)
             messages.success(request, 'Signed up successfully')
-            redirect(reverse('home-view'))
+            redirect(reverse('ticket-search'))
         return render(request, 'account/passenger_reg_form.html', {'form': form})
 
     else:
@@ -38,7 +38,12 @@ def passenger_login(request):
                     if not user.is_staff:
                         login(request, user)
                         messages.success(request, 'Logged in successfully')
-                        return redirect(reverse('ticket-search'))
+                        next_param = request.GET.get('next')
+                        if next_param:
+                            url = next_param
+                        else:
+                            url = reverse('ticket-search')
+                        return redirect(url)
                     else:
                         messages.error(request, 'This account is not a passenger! Please use "Staff Log In" ')
                         return redirect(reverse('staff-login'))
