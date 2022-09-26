@@ -18,7 +18,7 @@ class ComfortsPrice(models.Model):
     three_or_more_bags_price = models.DecimalField(max_digits=5, decimal_places=2)
 
     def __str__(self):
-        return f"{self.fare_class} baggage prices"
+        return f"{self.fare_class} comforts prices"
 
 
 class Airplane(models.Model):
@@ -71,7 +71,7 @@ class Flight(models.Model):
 class Booking(models.Model):
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE, related_name="bookings")
     purchaser = models.ForeignKey(PassengerProfile, on_delete=models.CASCADE, related_name="bookings")
-    total_price = models.DecimalField(max_digits=8, decimal_places=2)
+    total_price = models.DecimalField(max_digits=8, decimal_places=2, null=True)
 
     def __str__(self):
         return f"{self.flight}, {self.purchaser}, {self.total_price}"
@@ -87,8 +87,8 @@ class Ticket(models.Model):
     baggage_price = models.DecimalField(max_digits=6, decimal_places=2)
     lunch = models.BooleanField()
     total_price = models.DecimalField(max_digits=8, decimal_places=2)
-    boarding_registered = models.BooleanField(blank=True)
-    checked_in = models.BooleanField(blank=True)
+    boarding_registered = models.BooleanField(null=True, blank=True)
+    checked_in = models.BooleanField(null=True, blank=True)
 
     def __str__(self):
         return f"{self.passenger_first_name} {self.passenger_last_name}"

@@ -20,7 +20,7 @@ class FlightSearchForm(forms.Form):
         }
 
 
-class TicketForm(forms.Form):
+class TicketForm(forms.ModelForm):
     passenger_first_name = forms.CharField(max_length=150)
     passenger_last_name = forms.CharField(max_length=150)
     fare_class = forms.ChoiceField(choices=((3, "Economy"), (2, "Business",), (1, "First"),), initial="Economy")
@@ -29,6 +29,9 @@ class TicketForm(forms.Form):
 
     class Meta:
         model = Ticket
+        fields = (
+            'passenger_first_name', 'passenger_last_name', 'n_bags', 'lunch'
+        )
 
     def save(self, commit=True):
         ticket = super(TicketForm, self).save(commit=False)

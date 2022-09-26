@@ -44,8 +44,21 @@ def get_baggage_price(ticket):
 
 
 def get_lunch_price(ticket):
-    prices = ComfortsPrice.objects.get(fare_class=ticket.fare_class)
-    return prices.lunch_price
+    if ticket.lunch:
+        prices = ComfortsPrice.objects.get(fare_class=ticket.fare_class)
+        return prices.lunch_price
+    else:
+        return 0
+
+
+def update_seats(flight, fare_class):
+    if fare_class.pk == 1:
+        flight.first_class_seats_occupied += 1
+    elif fare_class.pk == 2:
+        flight.business_class_seats_occupied += 1
+    elif fare_class.pk == 3:
+        flight.economy_class_seats_occupied += 1
+        flight.save()
 
 
 def ticket_search(request):
@@ -84,7 +97,8 @@ def tickets_form(request):
         formset = TicketsFormset(request.POST or None)
         if formset.is_valid():
             booking = Booking(flight=flight, purchaser=request.user.passenger_profile)
-            print("FORMSET:")
+            booking.save()
+            total_booking_price = 0
             for form in formset:
                 cd = form.cleaned_data
                 ticket = form.save(commit=False)
@@ -95,6 +109,11 @@ def tickets_form(request):
                 lunch_price = get_lunch_price(ticket)
                 ticket.total_price = fare_class_price + ticket.baggage_price + lunch_price
                 ticket.save()
+                total_booking_price += ticket.total_price
+                update_seats(flight, ticket.fare_class)
+            booking.total_price = total_booking_price
+            booking.save()
+            print("flight.economy_class_seats_occupied=", flight.economy_class_seats_occupied)
             return HttpResponse("Oder taken!")
         else:
             messages.error(request, f"Formset errors: {formset.errors}")
