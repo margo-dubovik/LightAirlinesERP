@@ -27,7 +27,8 @@
         <li class="list-group-item">
             <p>{{ flight }}</p>
             <p>duration: {{ flight.duration }}</p>
-            <a href="{% url 'tickets-form' %}?flight_id={{ flight.id }}&n_passengers={{ form_data.n_passengers }}" class="btn btn-primary">
+            <a href="{% url 'tickets-form' %}?flight_id={{ flight.id }}&n_passengers={{ form_data.n_passengers }}"
+               class="btn btn-primary">
                 Order tickets</a>
         </li>
     {% empty %}

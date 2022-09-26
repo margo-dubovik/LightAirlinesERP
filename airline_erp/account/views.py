@@ -38,7 +38,7 @@ def passenger_login(request):
                     if not user.is_staff:
                         login(request, user)
                         messages.success(request, 'Logged in successfully')
-                        return redirect(reverse('home-view'))
+                        return redirect(reverse('ticket-search'))
                     else:
                         messages.error(request, 'This account is not a passenger! Please use "Staff Log In" ')
                         return redirect(reverse('staff-login'))
@@ -62,7 +62,7 @@ def staff_login(request):
                 if user.is_staff:
                     login(request, user)
                     messages.success(request, 'Logged in successfully')
-                    return redirect(reverse('home-view'))
+                    return redirect(reverse('ticket-search'))
                 else:
                     messages.error(request, 'This account is not a staff member! Please use "Log In"')
                     return redirect(reverse('passenger-login'))
@@ -77,4 +77,4 @@ def staff_login(request):
 def user_logout(request):
     logout(request)
     messages.info(request, 'You are logged out now')
-    return redirect(reverse('home-view'))
+    return redirect(reverse('ticket-search'))

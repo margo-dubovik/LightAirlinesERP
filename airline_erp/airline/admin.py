@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import FareClass, BaggagePrice, Airplane, Airport, Flight, Booking, Ticket, Discount
+from .models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
 
 
 admin.site.register(FareClass)
-admin.site.register(BaggagePrice)
+admin.site.register(ComfortsPrice)
 admin.site.register(Airplane)
 admin.site.register(Airport)
 admin.site.register(Flight)

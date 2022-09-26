@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from dal import autocomplete
 
-from airline.models import FareClass, BaggagePrice, Airplane, Airport, Flight, Booking, Ticket, Discount
+from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
 
 
 class FlightSearchForm(forms.Form):
@@ -18,3 +18,24 @@ class FlightSearchForm(forms.Form):
             'origin': autocomplete.ListSelect2(url='airport-autocomplete'),
             'destination': autocomplete.ListSelect2(url='airport-autocomplete'),
         }
+
+
+class TicketForm(forms.Form):
+    passenger_first_name = forms.CharField(max_length=150)
+    passenger_last_name = forms.CharField(max_length=150)
+    fare_class = forms.ChoiceField(choices=((3, "Economy"), (2, "Business",), (1, "First"),), initial="Economy")
+    n_bags = forms.IntegerField(label="Number of bags")
+    lunch = forms.BooleanField(required=False)
+
+    class Meta:
+        model = Ticket
+
+    def save(self, commit=True):
+        ticket = super(TicketForm, self).save(commit=False)
+        ticket.passenger_first_name = self.cleaned_data['passenger_first_name']
+        ticket.passenger_last_name = self.cleaned_data['passenger_last_name']
+        ticket.n_bags = self.cleaned_data['n_bags']
+        ticket.lunch = self.cleaned_data['lunch']
+        if commit:
+            ticket.save()
+        return ticket

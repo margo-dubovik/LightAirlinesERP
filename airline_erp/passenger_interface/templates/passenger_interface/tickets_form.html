@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block body %}
+<div class="container">
+    <h1>Enter passengers data</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset.forms %}
+        <h2>Passenger {{ forloop.counter }}</h2>
+                {{ form.as_p }}
+        {% endfor %}
+
+        <button type="submit">Order tickets</button>
+    </form>
+</div>
+{% endblock %}
