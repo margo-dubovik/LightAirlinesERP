@@ -13,7 +13,12 @@
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Login</button>
+        <button type="submit" class="btn btn-outline-secondary">Login</button>
     </form>
+
+    <br>
+
+    <h5>Do not have LightAirlines account?</h5>
+    <a href="{% url 'passenger-signup' %}?next={{ request.GET.next|urlencode  }}" class="btn btn-outline-secondary">Sign Up</a>
 </div>
 {% endblock %}

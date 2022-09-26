@@ -19,7 +19,13 @@ def passenger_signup(request):
             passenger_profile = PassengerProfile.objects.create(user=user)
             login(request, user)
             messages.success(request, 'Signed up successfully')
-            redirect(reverse('ticket-search'))
+            next_param = request.GET.get('next')
+            print("SIGNUP. next_param=",next_param)
+            if next_param:
+                url = next_param
+            else:
+                url = reverse('ticket-search')
+            return redirect(url)
         return render(request, 'account/passenger_reg_form.html', {'form': form})
 
     else:
