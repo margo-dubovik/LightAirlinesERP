@@ -42,6 +42,7 @@ class Airport(models.Model):
 
 class Flight(models.Model):
     departure_time = models.DateTimeField()
+    duration = models.DurationField()
     origin = models.ForeignKey(Airport, on_delete=models.CASCADE)
     destination = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="flights")
     airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE, related_name="flights")

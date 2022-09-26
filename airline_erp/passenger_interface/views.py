@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.urls import reverse
 from django.db.models import Q
+from django.core.cache import cache
 
 from .forms import FlightSearchForm
 from airline.models import FareClass, BaggagePrice, Airplane, Airport, Flight, Booking, Ticket, Discount
@@ -33,10 +34,16 @@ def home_view(request):
                 results = Flight.objects.filter(
                     Q(origin__city__icontains=cd['origin'], destination__city__icontains=cd['destination'])
                 )
-            return render(request, "passenger_interface/flights_found.html", {'results': results})
+            print("results=", results)
+            cache.set('ticket_search_results', results, 10)
+            return redirect(reverse('ticket-search-result'))
         else:
             return render(request, "passenger_interface/passenger_interface_home.html", {'form': form})
     else:
         form = FlightSearchForm()
         return render(request, "passenger_interface/passenger_interface_home.html", {'form': form})
 
+
+def ticket_search_result(request):
+    results = cache.get('ticket_search_results')
+    return render(request, "passenger_interface/flights_found.html", {'results': results})
