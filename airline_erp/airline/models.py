@@ -58,12 +58,15 @@ class Flight(models.Model):
     def __str__(self):
         return f"{self.origin} -> {self.destination}, {self.departure_time}"
 
+    @property
     def economy_class_seats_available(self):
         return self.airplane.economy_class_seats - self.economy_class_seats_occupied
 
+    @property
     def first_class_seats_available(self):
         return self.airplane.first_class_seats - self.first_class_seats_occupied
 
+    @property
     def business_class_seats_available(self):
         return self.airplane.business_class_seats - self.business_class_seats_occupied
 

@@ -97,16 +97,23 @@ def ticket_search(request):
             if cd['date']:
                 results = Flight.objects.filter(
                     Q(origin__city__icontains=cd['origin'], destination__city__icontains=cd['destination'],
-                      departure_time__icontains=cd['date'])
+                      departure_time__icontains=cd['date'], )
                 )
             else:
                 results = Flight.objects.filter(
                     Q(origin__city__icontains=cd['origin'], destination__city__icontains=cd['destination'])
                 )
             if results:
-                print("results=", results, "type=", type(results))
-            else:
-                print("NO RESULTS")
+                for flight in results:
+                    fare_class = cd['fare_class']
+                    n_passengers = cd['n_passengers']
+                    available_seats = {
+                        '1': flight.first_class_seats_available,
+                        '2': flight.business_class_seats_available,
+                        '3': flight.economy_class_seats_available,
+                    }
+                    if available_seats[fare_class] < n_passengers:
+                        results = results.exclude(pk=flight.pk)
             return render(request, "passenger_interface/ticket_search.html",
                           {'form': form, 'results': results, 'form_data': cd, })
         else:
