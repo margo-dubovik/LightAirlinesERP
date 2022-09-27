@@ -1,12 +1,23 @@
 from django.shortcuts import render, redirect
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import CreateView
 from django.contrib.auth import login, logout, authenticate
 from django.http import HttpResponse
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.contrib.sites.shortcuts import get_current_site
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.conf import settings
+from django.contrib.auth import get_user_model
 
 from .forms import PassengerSignUpForm, LoginForm
 from .models import PassengerProfile, StaffProfile
+from .token_generator import account_activation_token
+
+
+CustomUser = get_user_model()
 
 
 def passenger_signup(request):
@@ -14,23 +25,67 @@ def passenger_signup(request):
         form = PassengerSignUpForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = True
+            user.is_active = False
             user.save()
             passenger_profile = PassengerProfile.objects.create(user=user)
-            login(request, user)
-            messages.success(request, 'Signed up successfully')
+
             next_param = request.GET.get('next')
-            print("SIGNUP. next_param=",next_param)
             if next_param:
                 url = next_param
             else:
                 url = reverse('ticket-search')
+
+            current_site = get_current_site(request)
+            email_subject = "Welcome to LightAirlines! Please, confirm your email."
+            email_body = render_to_string('account/account_activation_email.html',
+                                          {'user': user,
+                                           'domain': current_site.domain,
+                                           'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                                           'token': account_activation_token.make_token(user),
+                                           'next': url},
+                                          request=request,
+                                          )
+
+            send_mail(
+                subject=email_subject,
+                message=" ",
+                html_message=email_body,
+                from_email=settings.EMAIL_FROM_USER,
+                recipient_list=[user.email],
+                fail_silently=True,
+            )
+
+            messages.info(request, 'We sent you an email to confirm your email address and complete the registration. '
+                                   'If you do not see the email in a few minutes, check your spam folder.'
+                                   'Without it you won`t be able to log in!')
+
             return redirect(url)
         return render(request, 'account/passenger_reg_form.html', {'form': form})
 
     else:
         form = PassengerSignUpForm()
         return render(request, 'account/passenger_reg_form.html', {'form': form})
+
+
+def activate_passenger(request, uidb64, token):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = CustomUser.objects.get(pk=uid)
+    except(TypeError, ValueError, OverflowError, CustomUser.DoesNotExist):
+        user = None
+    if user is not None and account_activation_token.check_token(user, token):
+        user.is_active = True
+        user.save()
+        login(request, user)
+        next_param = request.GET.get('next')
+        if next_param:
+            url = next_param
+        else:
+            url = reverse('ticket-search')
+        messages.success(request, 'Your email is confirmed. Thank you.')
+        return redirect(url)
+    else:
+        return HttpResponse('Activation link is invalid!')
 
 
 def passenger_login(request):
