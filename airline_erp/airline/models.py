@@ -99,3 +99,7 @@ class Discount(models.Model):
     first_class_discount = models.DecimalField(max_digits=4, decimal_places=2)
     business_class_discount = models.DecimalField(max_digits=4, decimal_places=2)
     economy_class_discount = models.DecimalField(max_digits=4, decimal_places=2)
+
+    def __str__(self):
+        return f"first: {self.first_class_discount}%, business: {self.business_class_discount}% " \
+               f"economy: {self.economy_class_discount}%, flight: {self.flight}"

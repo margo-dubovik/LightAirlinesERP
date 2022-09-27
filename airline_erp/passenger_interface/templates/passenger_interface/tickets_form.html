@@ -1,5 +1,14 @@
 {% extends 'base.html' %}
 {% block body %}
+
+<div class="container">
+    <h1>Flight:</h1>
+    <p>from: {{ flight.origin }}</p>
+    <p>to: {{ flight.destination }}</p>
+    <p>departure time: {{ flight.departure_time }}</p>
+    <p>duration: {{ flight.duration }} hours</p>
+</div>
+
 <div class="container">
     <h1>Enter passengers data</h1>
     <form method="post">

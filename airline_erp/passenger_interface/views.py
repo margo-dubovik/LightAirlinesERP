@@ -1,3 +1,5 @@
+import decimal
+
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -24,12 +26,24 @@ from dal import autocomplete
 
 
 def get_fare_class_price(flight, fare_class):
-    if fare_class.pk == 1:
-        return flight.first_class_price
-    elif fare_class.pk == 2:
-        return flight.business_class_price
-    elif fare_class.pk == 3:
-        return flight.economy_class_price
+    price_fields = {
+        1: flight.first_class_price,
+        2: flight.business_class_price,
+        3: flight.economy_class_price,
+    }
+
+    ticket_price = price_fields[fare_class.pk]
+
+    if Discount.objects.filter(flight=flight).exists():
+        discount = Discount.objects.get(flight=flight)
+        discount_fields = {
+            1: discount.first_class_discount,
+            2: discount.business_class_discount,
+            3: discount.economy_class_discount,
+        }
+        return ticket_price * (1 - discount_fields[fare_class.pk] * decimal.Decimal(0.01))
+    else:
+        return ticket_price
 
 
 def get_baggage_price(ticket):
@@ -59,7 +73,7 @@ def update_seats(flight, fare_class):
         flight.business_class_seats_occupied += 1
     elif fare_class.pk == 3:
         flight.economy_class_seats_occupied += 1
-        flight.save()
+    flight.save()
 
 
 def ticket_search(request):
@@ -93,9 +107,9 @@ def ticket_search(request):
 def tickets_form(request):
     n_passengers = int(request.GET.get('n_passengers'))
     TicketsFormset = formset_factory(TicketForm, extra=n_passengers)
+    flight_id = request.GET.get('flight_id')
+    flight = get_object_or_404(Flight, id=flight_id)
     if request.method == 'POST':
-        flight_id = request.GET.get('flight_id')
-        flight = get_object_or_404(Flight, id=flight_id)
         formset = TicketsFormset(request.POST or None)
         if formset.is_valid():
             booking = Booking(flight=flight, purchaser=request.user.passenger_profile)
@@ -121,7 +135,7 @@ def tickets_form(request):
             messages.error(request, f"Formset errors: {formset.errors}")
             messages.error(request, f"Formset non-form errors: {formset.non_form_errors()}")
         return render(request, 'passenger_interface/tickets_form.html',
-                      {'formset': TicketsFormset, })
+                      {'formset': TicketsFormset, 'flight': flight, })
     else:
         return render(request, 'passenger_interface/tickets_form.html',
-                      {'formset': TicketsFormset, })
+                      {'formset': TicketsFormset, 'flight': flight, })
