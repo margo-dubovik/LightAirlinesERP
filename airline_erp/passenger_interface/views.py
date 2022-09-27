@@ -101,11 +101,12 @@ def ticket_search(request):
             if cd['date']:
                 results = Flight.objects.filter(
                     Q(origin__city__icontains=cd['origin'], destination__city__icontains=cd['destination'],
-                      departure_time__icontains=cd['date'], )
+                      departure_time__icontains=cd['date'], departure_time__gt=timezone.now())
                 )
             else:
                 results = Flight.objects.filter(
-                    Q(origin__city__icontains=cd['origin'], destination__city__icontains=cd['destination'])
+                    Q(origin__city__icontains=cd['origin'], destination__city__icontains=cd['destination'],
+                      departure_time__gt=timezone.now())
                 )
             if results:
                 for flight in results:
@@ -193,22 +194,26 @@ def profile(request):
 @login_required
 def profile_upcoming_bookings(request):
     upcoming_bookings = request.user.passenger_profile.bookings.filter(flight__departure_time__gt=timezone.now())
-    print("upcoming_bookings=", upcoming_bookings)
     return render(request, 'passenger_interface/profile_upcoming_bookings.html', {'bookings': upcoming_bookings, })
 
 
 @login_required
 def profile_previous_bookings(request):
     previous_bookings = request.user.passenger_profile.bookings.filter(flight__departure_time__lt=timezone.now())
-    print("previous_bookings=", previous_bookings)
     return render(request, 'passenger_interface/profile_previous_bookings.html', {'bookings': previous_bookings, })
 
 
 @login_required
 def profile_online_check_in(request):
     return render(request, 'passenger_interface/profile_online_check_in.html')
-    # booking = get_object_or_404(Booking, pk=10)
-    # flight = get_object_or_404(Flight, pk=2)
-    # return render(request, 'passenger_interface/tickets_email.html',
-    #               {'user': request.user, 'tickets': booking.tickets.all(),
-    #                'flight': flight})
+
+
+@login_required
+def booking_details_view(request, booking_id):
+    booking = get_object_or_404(Booking, id=booking_id)
+    flight = booking.flight
+    return render(request, 'passenger_interface/booking_details.html',
+                  {'user': request.user,
+                   'tickets': booking.tickets.all(),
+                   'flight': flight,
+                   'email': False, }, )

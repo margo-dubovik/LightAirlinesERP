@@ -7,6 +7,8 @@
 
 {% if email %}
 <p> Hello, {{ user.first_name }}! Here are your tickets.</p>
+{% else %}
+<p>Here are your tickets for this booking.</p>
 {% endif %}
 
 <div class="container">

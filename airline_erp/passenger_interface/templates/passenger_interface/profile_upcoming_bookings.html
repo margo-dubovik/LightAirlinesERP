@@ -5,7 +5,7 @@
 <ul class="list-group">
   {% for booking in bookings %}
   <li class="list-group-item">
-    <p>{{ booking }}</p>
+    <a href="{% url 'booking-details' booking_id=booking.pk %}?">{{ booking }}</a>
   </li>
   {% empty %}
     <p>No upcoming bookings yet.</p>
