@@ -19,6 +19,8 @@
     <br>
 
     <h5>Do not have LightAirlines account?</h5>
-    <a href="{% url 'passenger-signup' %}?next={{ request.GET.next|urlencode  }}" class="btn btn-outline-secondary">Sign Up</a>
+    <a href="{% url 'passenger-signup' %}?next={{ request.GET.next|urlencode  }}" class="btn btn-outline-secondary">
+        Sign Up</a>
+
 </div>
 {% endblock %}

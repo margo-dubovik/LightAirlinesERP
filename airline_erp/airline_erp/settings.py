@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'airline',
     'passenger_interface',
     'staff_interface',
+    'social_django',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +75,9 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },
@@ -147,3 +151,19 @@ EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('APP_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+
+
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.github.GithubOAuth2',
+    'social_core.backends.google.GoogleOAuth2',
+
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+SOCIAL_AUTH_URL_NAMESPACE = 'social'
+SOCIAL_AUTH_USER_FIELDS = ['email']
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get('MY_GOOGLE_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('MY_GOOGLE_SECRET_KEY')
+SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/account/'
+SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
