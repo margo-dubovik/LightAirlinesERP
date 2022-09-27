@@ -6,27 +6,27 @@
         <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-light">
             <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-black min-vh-100 navbar-nav">
                 <ul class="navbar-nav flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                    <li class="nav-item">
+                        <a href="{% url 'ticket-search' %}" class="text-decoration-none link-dark align-middle px-0">
+                            <span class="ms-1 d-none d-sm-inline">Find tickets</span>
+                        </a>
+                    </li>
+                    <hr>
                     <li>
                         <a href="{% url 'profile' %}" class="text-decoration-none link-dark align-middle px-0">
                             <span class="ms-1 d-none d-sm-inline">Profile</span>
                         </a>
                     </li>
                     <br>
-                    <li class="nav-item">
-                        <a href="{% url 'ticket-search' %}" class="text-decoration-none link-dark align-middle px-0">
-                            <span class="ms-1 d-none d-sm-inline">Find tickets</span>
-                        </a>
-                    </li>
-                    <br>
                     <li>
-                        <a href="{% url 'upcoming-flights' %}" class="text-decoration-none link-dark align-middle px-0">
-                            <span class="ms-1 d-none d-sm-inline">Upcoming flights</span>
+                        <a href="{% url 'upcoming-bookings' %}" class="text-decoration-none link-dark align-middle px-0">
+                            <span class="ms-1 d-none d-sm-inline">Upcoming bookings</span>
                         </a>
                     </li>
                     <br>
                     <li class="nav-item">
-                        <a href="{% url 'previous-flights' %}" class="text-decoration-none link-dark align-middle px-0">
-                            <span class="ms-1 d-none d-sm-inline">Previous flights</span>
+                        <a href="{% url 'previous-bookings' %}" class="text-decoration-none link-dark align-middle px-0">
+                            <span class="ms-1 d-none d-sm-inline">Previous bookings</span>
                         </a>
                     </li>
                     <br>

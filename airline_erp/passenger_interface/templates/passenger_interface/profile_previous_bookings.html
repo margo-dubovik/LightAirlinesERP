@@ -1,0 +1,15 @@
+{% extends 'profile_base.html' %}
+{% block profile_content %}
+
+<h1>Previous bookings:</h1>
+<ul class="list-group">
+  {% for booking in bookings %}
+  <li class="list-group-item">
+    <p>{{ booking }}</p>
+  </li>
+  {% empty %}
+    <p>No previous bookings yet.</p>
+  {% endfor %}
+</ul>
+
+{% endblock %}

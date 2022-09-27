@@ -77,7 +77,7 @@ class Booking(models.Model):
     total_price = models.DecimalField(max_digits=8, decimal_places=2, null=True)
 
     def __str__(self):
-        return f"{self.flight}, {self.purchaser}, {self.total_price}"
+        return f"{self.flight}, {self.purchaser}, {self.total_price} €"
 
 
 class Ticket(models.Model):

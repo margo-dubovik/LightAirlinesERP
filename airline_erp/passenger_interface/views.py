@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.db.models import Q
 from django.core.cache import cache
 from django.forms import formset_factory
+from django.utils import timezone
 
 from .forms import FlightSearchForm, TicketForm
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
@@ -167,13 +168,17 @@ def profile(request):
 
 
 @login_required
-def profile_upcoming_flights(request):
-    return render(request, 'passenger_interface/profile_upcoming_flights.html')
+def profile_upcoming_bookings(request):
+    upcoming_bookings = request.user.passenger_profile.bookings.filter(flight__departure_time__gt=timezone.now())
+    print("upcoming_bookings=", upcoming_bookings)
+    return render(request, 'passenger_interface/profile_upcoming_bookings.html', {'bookings': upcoming_bookings, })
 
 
 @login_required
-def profile_previous_flights(request):
-    return render(request, 'passenger_interface/profile_previous_flights.html')
+def profile_previous_bookings(request):
+    previous_bookings = request.user.passenger_profile.bookings.filter(flight__departure_time__lt=timezone.now())
+    print("previous_bookings=", previous_bookings)
+    return render(request, 'passenger_interface/profile_previous_bookings.html', {'bookings': previous_bookings, })
 
 
 @login_required
