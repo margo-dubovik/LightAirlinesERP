@@ -159,3 +159,23 @@ def tickets_form(request):
     else:
         return render(request, 'passenger_interface/tickets_form.html',
                       {'formset': TicketsFormset, 'flight': flight, })
+
+
+@login_required
+def profile(request):
+    return render(request, 'passenger_interface/profile_profile.html')
+
+
+@login_required
+def profile_upcoming_flights(request):
+    return render(request, 'passenger_interface/profile_upcoming_flights.html')
+
+
+@login_required
+def profile_previous_flights(request):
+    return render(request, 'passenger_interface/profile_previous_flights.html')
+
+
+@login_required
+def profile_online_check_in(request):
+    return render(request, 'passenger_interface/profile_online_check_in.html')
