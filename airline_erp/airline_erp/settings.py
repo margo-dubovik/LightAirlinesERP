@@ -140,3 +140,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/account/passenger/login/'
 
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_FROM_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('APP_PASSWORD')
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

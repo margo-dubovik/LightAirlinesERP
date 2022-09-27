@@ -9,6 +9,9 @@ from django.db.models import Q
 from django.core.cache import cache
 from django.forms import formset_factory
 from django.utils import timezone
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.conf import settings
 
 from .forms import FlightSearchForm, TicketForm
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
@@ -147,11 +150,31 @@ def tickets_form(request):
                 ticket.total_price = fare_class_price + ticket.baggage_price + lunch_price
                 ticket.save()
                 total_booking_price += ticket.total_price
-                # occupy_seat(flight, ticket.fare_class)
             booking.total_price = total_booking_price
             booking.save()
             update_flight_seats(flight)  # add just taken seats
-            return HttpResponse("Oder taken!")
+
+            email_subject = "Your LightAirlines tickets"
+            email_body = render_to_string('passenger_interface/tickets_template.html',
+                                          {'user': request.user,
+                                           'tickets': booking.tickets.all(),
+                                           'flight': flight,
+                                           'email': True, },
+                                          request=request,
+                                          )
+
+            send_mail(
+                subject=email_subject,
+                message=" ",
+                html_message=email_body,
+                from_email=settings.EMAIL_FROM_USER,
+                recipient_list=[request.user.email],
+                fail_silently=True,
+            )
+
+            messages.success(request, f"Tickets booked successfully! They were sent to your email."
+                                      f"You can also find them in your profile")
+            return redirect(reverse('upcoming-bookings'))
         else:
             messages.error(request, f"Formset errors: {formset.errors}")
             messages.error(request, f"Formset non-form errors: {formset.non_form_errors()}")
@@ -184,3 +207,8 @@ def profile_previous_bookings(request):
 @login_required
 def profile_online_check_in(request):
     return render(request, 'passenger_interface/profile_online_check_in.html')
+    # booking = get_object_or_404(Booking, pk=10)
+    # flight = get_object_or_404(Flight, pk=2)
+    # return render(request, 'passenger_interface/tickets_email.html',
+    #               {'user': request.user, 'tickets': booking.tickets.all(),
+    #                'flight': flight})
