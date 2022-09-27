@@ -14,6 +14,7 @@ from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, 
 
 from dal import autocomplete
 
+
 #
 # class AirportAutocomplete(autocomplete.Select2QuerySetView):
 #     def get_queryset(self):
@@ -66,13 +67,25 @@ def get_lunch_price(ticket):
         return 0
 
 
-def update_seats(flight, fare_class):
-    if fare_class.pk == 1:
-        flight.first_class_seats_occupied += 1
-    elif fare_class.pk == 2:
-        flight.business_class_seats_occupied += 1
-    elif fare_class.pk == 3:
-        flight.economy_class_seats_occupied += 1
+def update_flight_seats(flight):
+    classes = {
+        'first': 1,
+        'business': 2,
+        'economy': 3,
+    }
+    first_class = get_object_or_404(FareClass, pk=classes['first'])
+    business_class = get_object_or_404(FareClass, pk=classes['business'])
+    economy_class = get_object_or_404(FareClass, pk=classes['economy'])
+    first_seats = 0
+    business_seats = 0
+    economy_seats = 0
+    for booking in flight.bookings.all():
+        first_seats += booking.tickets.filter(fare_class=first_class).count()
+        business_seats += booking.tickets.filter(fare_class=business_class).count()
+        economy_seats += booking.tickets.filter(fare_class=economy_class).count()
+    flight.first_class_seats_occupied = first_seats
+    flight.business_class_seats_occupied = business_seats
+    flight.economy_class_seats_occupied = economy_seats
     flight.save()
 
 
@@ -126,10 +139,10 @@ def tickets_form(request):
                 ticket.total_price = fare_class_price + ticket.baggage_price + lunch_price
                 ticket.save()
                 total_booking_price += ticket.total_price
-                update_seats(flight, ticket.fare_class)
+                # occupy_seat(flight, ticket.fare_class)
             booking.total_price = total_booking_price
             booking.save()
-            print("flight.economy_class_seats_occupied=", flight.economy_class_seats_occupied)
+            update_flight_seats(flight)  # add just taken seats
             return HttpResponse("Oder taken!")
         else:
             messages.error(request, f"Formset errors: {formset.errors}")
