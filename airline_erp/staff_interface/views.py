@@ -79,6 +79,17 @@ def checkin_manager_profile(request):
 @login_required
 @user_passes_test(lambda u: is_check_in_manager(u) or is_supervisor(u))
 def checkin_passenger(request):
+    confirmed = request.GET.get('confirmed')
+    ticket_code = request.GET.get('ticket_code')
+    if confirmed:
+        ticket = Ticket.objects.get(ticket_code=ticket_code)
+        ticket.checked_in = True
+        ticket.save()
+        result = "Checked in!"
+        success = True
+        return render(request, 'staff_interface/checkin_passenger.html',
+                      {'result': result, 'success': success, })
+
     if request.method == 'POST':
         form = TicketCodeForm(request.POST)
         if form.is_valid():
@@ -93,10 +104,12 @@ def checkin_passenger(request):
                 if ticket.checked_in:
                     result = "This passenger is already checked in!"
                 else:
-                    ticket.checked_in = True
-                    ticket.save()
-                    result = "Checked in!"
+                    flight = ticket.booking.flight
+                    result = "Ticket exists"
                     success = True
+                    return render(request, 'staff_interface/checkin_passenger.html',
+                                  {'form': form, 'result': result, 'success': success,
+                                   'ticket': ticket, 'flight': flight, })
 
             return render(request, 'staff_interface/checkin_passenger.html',
                           {'form': form, 'result': result, 'success': success, })
@@ -104,6 +117,11 @@ def checkin_passenger(request):
         form = TicketCodeForm()
         return render(request, 'staff_interface/checkin_passenger.html', {'form': form, })
 
+
+@login_required
+@user_passes_test(lambda u: is_check_in_manager(u) or is_supervisor(u))
+def checkin_add_options(request):
+    pass
 
 @login_required
 @user_passes_test(is_supervisor)

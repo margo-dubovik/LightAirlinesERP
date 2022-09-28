@@ -1,12 +1,39 @@
 {% extends 'staff_cabinet_base.html' %}
 {% block profile_content %}
 <div class="container">
+    {% if form %}
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         {{ form.media }}
         <button type="submit">Check in</button>
     </form>
+    {% endif %}
+
+    {% if ticket %}
+    <article class="card" style="width: 20rem; border-style: solid; border-width: 2px; border-radius: 3px;">
+        <div class="card-body">
+            <p class="card-text"><small>passenger name: </small>
+                <strong>{{ ticket.passenger_first_name }} {{ ticket.passenger_last_name }}</strong>
+            </p>
+            <p class="card-text"><small>from: </small><strong>{{ flight.origin.city }} / {{ flight.origin.iata }}</strong></p>
+            <p class="card-text"><small>to: </small><strong>{{ flight.destination.city }} / {{ flight.destination.iata }}</strong></p>
+            <time datetime="{{ flight.departure_time }}" class="card-text">
+              <span><small>departure: </small> {{ flight.departure_time }}</span>
+            </time>
+            <p class="card-text">class:
+                <span class="card-text" style="text-transform:uppercase">{{ ticket.fare_class.name }}</span>
+            </p>
+            <p class="card-text"><small>ticket code: </small><strong>{{ ticket.ticket_code }}</strong></p>
+            <p class="card-text"><small>number of bags: </small><strong>{{ ticket.n_bags }}</strong></p>
+        </div>
+    </article>
+
+    <a href="{% url 'checkin' %}?ticket_code={{ticket.ticket_code}}&confirmed=True" class="btn btn-outline-secondary">
+        Check in
+    </a>
+
+    {% endif %}
 
     {% if result %}
     <br>
