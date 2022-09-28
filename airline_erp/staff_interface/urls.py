@@ -6,5 +6,6 @@ urlpatterns = [
     path('profile/gate-manager/', views.gate_manager_profile, name="gate-manager-profile"),
     path('register-boarding/', views.register_boarding, name="register-boarding"),
     path('profile/checkin-manager/', views.checkin_manager_profile, name="checkin-manager-profile"),
+    path('checkin-passenger/', views.checkin_passenger, name="checkin-passenger"),
     path('profile/supervisor/', views.supervisor_profile, name="supervisor-profile"),
 ]

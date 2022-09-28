@@ -6,7 +6,7 @@ from django.conf import settings
 
 from account.models import StaffProfile
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
-from .forms import BoardingForm
+from .forms import TicketCodeForm
 
 
 def is_gate_manager(user):
@@ -42,7 +42,7 @@ def gate_manager_profile(request):
 @user_passes_test(lambda u: is_gate_manager(u) or is_supervisor(u))
 def register_boarding(request):
     if request.method == 'POST':
-        form = BoardingForm(request.POST)
+        form = TicketCodeForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
             success = False
@@ -66,7 +66,7 @@ def register_boarding(request):
             return render(request, 'staff_interface/register_boarding.html', {'form': form, })
 
     else:
-        form = BoardingForm()
+        form = TicketCodeForm()
         return render(request, 'staff_interface/register_boarding.html', {'form': form, })
 
 
@@ -74,6 +74,35 @@ def register_boarding(request):
 @user_passes_test(is_check_in_manager)
 def checkin_manager_profile(request):
     return render(request, 'staff_interface/checkin_manager_profile.html')
+
+
+@login_required
+@user_passes_test(lambda u: is_check_in_manager(u) or is_supervisor(u))
+def checkin_passenger(request):
+    if request.method == 'POST':
+        form = TicketCodeForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            success = False
+            try:
+                ticket = Ticket.objects.get(ticket_code=cd['ticket_code'])
+            except Ticket.DoesNotExist:
+                ticket = None
+                result = "Ticket does not exist!"
+            if ticket:
+                if ticket.checked_in:
+                    result = "This passenger is already checked in!"
+                else:
+                    ticket.checked_in = True
+                    ticket.save()
+                    result = "Checked in!"
+                    success = True
+
+            return render(request, 'staff_interface/checkin_passenger.html',
+                          {'form': form, 'result': result, 'success': success, })
+    else:
+        form = TicketCodeForm()
+        return render(request, 'staff_interface/checkin_passenger.html', {'form': form, })
 
 
 @login_required

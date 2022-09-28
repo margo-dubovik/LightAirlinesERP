@@ -5,5 +5,5 @@ from dal import autocomplete
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
 
 
-class BoardingForm(forms.Form):
+class TicketCodeForm(forms.Form):
     ticket_code = forms.IntegerField(label="Ticket Code")
