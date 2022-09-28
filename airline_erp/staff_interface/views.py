@@ -41,6 +41,17 @@ def gate_manager_profile(request):
 @login_required
 @user_passes_test(lambda u: is_gate_manager(u) or is_supervisor(u))
 def register_boarding(request):
+    confirmed = request.GET.get('confirmed')
+    ticket_code = request.GET.get('ticket_code')
+    if confirmed:
+        ticket = Ticket.objects.get(ticket_code=ticket_code)
+        ticket.boarding_registered = True
+        ticket.save()
+        result = "Registered!"
+        success = True
+        return render(request, 'staff_interface/checkin_passenger.html',
+                      {'result': result, 'success': success, })
+
     if request.method == 'POST':
         form = TicketCodeForm(request.POST)
         if form.is_valid():
@@ -54,11 +65,14 @@ def register_boarding(request):
             if ticket:
                 if ticket.boarding_registered:
                     result = "Ticket is already registered!"
+                    return render(request, 'staff_interface/register_boarding.html',
+                                  {'form': form, 'success': success, 'result': result, })
                 else:
-                    ticket.boarding_registered = True
-                    ticket.save()
-                    result = "Registered!"
+                    flight = ticket.booking.flight
                     success = True
+                    return render(request, 'staff_interface/register_boarding.html',
+                                  {'form': form, 'success': success,
+                                   'ticket': ticket, 'flight': flight, })
 
             return render(request, 'staff_interface/register_boarding.html',
                           {'form': form, 'result': result, 'success': success, })
@@ -105,10 +119,9 @@ def checkin_passenger(request):
                     result = "This passenger is already checked in!"
                 else:
                     flight = ticket.booking.flight
-                    result = "Ticket exists"
                     success = True
                     return render(request, 'staff_interface/checkin_passenger.html',
-                                  {'form': form, 'result': result, 'success': success,
+                                  {'form': form, 'success': success,
                                    'ticket': ticket, 'flight': flight, })
 
             return render(request, 'staff_interface/checkin_passenger.html',
