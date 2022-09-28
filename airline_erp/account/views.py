@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import CreateView
-from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth import get_user_model, login, logout, authenticate
 from django.http import HttpResponse
 from django.contrib import messages
 from django.core.mail import send_mail
@@ -10,9 +10,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes, force_str
 from django.conf import settings
-from django.contrib.auth import get_user_model
 
-from .forms import PassengerSignUpForm, LoginForm
+from .forms import CustomUserCreationForm, LoginForm
 from .models import PassengerProfile, StaffProfile
 from .token_generator import account_activation_token
 
@@ -22,7 +21,7 @@ CustomUser = get_user_model()
 
 def passenger_signup(request):
     if request.method == 'POST':
-        form = PassengerSignUpForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.is_active = False
@@ -63,7 +62,7 @@ def passenger_signup(request):
         return render(request, 'account/passenger_reg_form.html', {'form': form})
 
     else:
-        form = PassengerSignUpForm()
+        form = CustomUserCreationForm()
         return render(request, 'account/passenger_reg_form.html', {'form': form})
 
 
@@ -112,10 +111,10 @@ def passenger_login(request):
                     messages.error(request, 'The account is deactivated')
             else:
                 messages.error(request, 'user not found')
-        return render(request, 'account/login.html', {'form': form, 'login_title': 'Log In', })
+        return render(request, 'account/login.html', {'form': form, 'login_title': 'Log In', 'passenger': True, })
     else:
         form = LoginForm()
-    return render(request, 'account/login.html', {'form': form, 'login_title': 'Log In', })
+    return render(request, 'account/login.html', {'form': form, 'login_title': 'Log In', 'passenger': True, })
 
 
 def staff_login(request):
@@ -125,7 +124,7 @@ def staff_login(request):
             cd = form.cleaned_data
             user = authenticate(username=cd['email'], password=cd['password'])
             if user is not None:
-                if user.is_staff:
+                if user.is_airline_staff:
                     login(request, user)
                     messages.success(request, 'Logged in successfully')
                     return redirect(reverse('ticket-search'))
