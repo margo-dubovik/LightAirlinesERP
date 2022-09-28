@@ -126,7 +126,7 @@ def staff_login(request):
                 if user.is_airline_staff:
                     login(request, user)
                     messages.success(request, 'Logged in successfully')
-                    return redirect(reverse('ticket-search'))
+                    return redirect(reverse('staff-profile-redirect'))
                 else:
                     messages.error(request, 'This account is not a staff member! Please use "Log In"')
                     return redirect(reverse('passenger-login'))

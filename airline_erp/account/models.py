@@ -36,6 +36,14 @@ class StaffProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="staff_profile")
     airport = models.ForeignKey('airline.Airport', on_delete=models.CASCADE, related_name="staff", null=True)
 
+    role_choices = (
+        ('gate_manager', 'Gate Manager'),
+        ('check_in_manager', 'Check-in manager'),
+        ('supervisor', 'Supervisor'),
+    )
+
+    role = models.CharField(max_length=50, choices=role_choices)
+
     def __str__(self):
         return f"{self.user} staff profile"
 
