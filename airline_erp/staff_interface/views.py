@@ -5,6 +5,8 @@ from django.contrib import messages
 from django.conf import settings
 
 from account.models import StaffProfile
+from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
+from .forms import BoardingForm
 
 
 def is_gate_manager(user):
@@ -12,7 +14,7 @@ def is_gate_manager(user):
 
 
 def is_check_in_manager(user):
-    return user.staff_profile.role == 'check_in_manager'
+    return user.staff_profile.role == 'checkin_manager'
 
 
 def is_supervisor(user):
@@ -25,7 +27,7 @@ def staff_profile_redirect(request):
     if is_gate_manager(request.user):
         return redirect(reverse('gate-manager-profile'))
     if is_check_in_manager(request.user):
-        return redirect(reverse('gate-manager-profile'))
+        return redirect(reverse('checkin-manager-profile'))
     if is_supervisor(request.user):
         return redirect(reverse('supervisor-profile'))
 
@@ -34,6 +36,38 @@ def staff_profile_redirect(request):
 @user_passes_test(is_gate_manager)
 def gate_manager_profile(request):
     return render(request, 'staff_interface/gate_manager_profile.html')
+
+
+@login_required
+@user_passes_test(lambda u: is_gate_manager(u) or is_supervisor(u))
+def register_boarding(request):
+    if request.method == 'POST':
+        form = BoardingForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            success = False
+            try:
+                ticket = Ticket.objects.get(ticket_code=cd['ticket_code'])
+            except Ticket.DoesNotExist:
+                ticket = None
+                result = "Ticket does not exist!"
+            if ticket:
+                if ticket.boarding_registered:
+                    result = "Ticket is already registered!"
+                else:
+                    ticket.boarding_registered = True
+                    ticket.save()
+                    result = "Registered!"
+                    success = True
+
+            return render(request, 'staff_interface/register_boarding.html',
+                          {'form': form, 'result': result, 'success': success, })
+        else:
+            return render(request, 'staff_interface/register_boarding.html', {'form': form, })
+
+    else:
+        form = BoardingForm()
+        return render(request, 'staff_interface/register_boarding.html', {'form': form, })
 
 
 @login_required

@@ -38,7 +38,7 @@ class StaffProfile(models.Model):
 
     role_choices = (
         ('gate_manager', 'Gate Manager'),
-        ('check_in_manager', 'Check-in manager'),
+        ('checkin_manager', 'Check-in manager'),
         ('supervisor', 'Supervisor'),
     )
 

@@ -1,0 +1,21 @@
+{% extends 'staff_cabinet_base.html' %}
+{% block profile_content %}
+<div class="container">
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ form.media }}
+        <button type="submit">Register Boarding</button>
+    </form>
+
+    {% if result %}
+    <br>
+    <br>
+    {% if success %}
+    <p><span class="alert alert-success">{{ result }}</span> </p>
+    {% else %}
+    <p><span class="alert alert-danger">{{ result }}</span> </p>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}
