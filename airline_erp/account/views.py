@@ -26,7 +26,6 @@ def passenger_signup(request):
             user = form.save(commit=False)
             user.is_active = False
             user.save()
-            passenger_profile = PassengerProfile.objects.create(user=user)
 
             next_param = request.GET.get('next')
             if next_param:

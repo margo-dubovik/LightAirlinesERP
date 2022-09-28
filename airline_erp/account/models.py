@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext as _
+from django.db.models.signals import post_save
 
 from .managers import CustomUserManager
 
@@ -37,3 +38,14 @@ class StaffProfile(models.Model):
 
     def __str__(self):
         return f"{self.user} staff profile"
+
+
+def create_profile(sender, instance, created, **kwargs):
+    if created:
+        if instance.is_airline_staff:
+            StaffProfile.objects.create(user=instance)
+        else:
+            PassengerProfile.objects.create(user=instance)
+
+
+post_save.connect(create_profile, sender=User)
