@@ -13,9 +13,9 @@
         <p><small>duration: </small> {{ flight.duration }} hours</p>
     </article>
 </div>
-
+<br>
 <div class="container">
-    <h3>Enter passengers data</h3>
+    <h3>Enter passengers data:</h3>
     <form method="post">
         {% csrf_token %}
         {{ formset.management_form }}
@@ -32,9 +32,10 @@
                 {{ form.as_p }}
             <p>Fare class:<strong> {{ fare_class }}</strong></p>
         </article>
+        <br>
         {% endfor %}
-
-        <button type="submit">Order tickets</button>
+        <br>
+        <button type="submit" class="btn btn-primary">Order tickets</button>
     </form>
 </div>
 {% endblock %}

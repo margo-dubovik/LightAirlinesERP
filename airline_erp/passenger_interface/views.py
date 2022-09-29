@@ -80,6 +80,25 @@ def update_flight_seats(flight):
     flight.save()
 
 
+def send_email(request, booking):
+    email_subject = "Your LightAirlines tickets"
+    email_body = render_to_string('passenger_interface/tickets_template.html',
+                                  {'user': request.user,
+                                   'tickets': booking.tickets.all(),
+                                   'flight': booking.flight,
+                                   'email': True, },
+                                  request=request,
+                                  )
+
+    send_mail(
+        subject=email_subject,
+        message=" ",
+        html_message=email_body,
+        from_email=settings.EMAIL_FROM_USER,
+        recipient_list=[request.user.email],
+        fail_silently=True,
+    )
+
 def ticket_search(request):
     if request.method == 'POST':
         form = FlightSearchForm(request.POST)
@@ -163,23 +182,7 @@ def tickets_form(request):
             booking.save()
             update_flight_seats(flight)  # add just taken seats
 
-            email_subject = "Your LightAirlines tickets"
-            email_body = render_to_string('passenger_interface/tickets_template.html',
-                                          {'user': request.user,
-                                           'tickets': booking.tickets.all(),
-                                           'flight': flight,
-                                           'email': True, },
-                                          request=request,
-                                          )
-
-            send_mail(
-                subject=email_subject,
-                message=" ",
-                html_message=email_body,
-                from_email=settings.EMAIL_FROM_USER,
-                recipient_list=[request.user.email],
-                fail_silently=True,
-            )
+            send_email(request, booking)
 
             messages.success(request, f"Tickets booked successfully! They were sent to your email."
                                       f"You can also find them in your profile")
