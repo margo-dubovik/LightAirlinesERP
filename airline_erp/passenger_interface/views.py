@@ -97,17 +97,36 @@ def ticket_search(request):
                 )
             if results:
                 for flight in results:
-                    fare_class = cd['fare_class']
+                    fare_class_pk = cd['fare_class']
                     n_passengers = cd['n_passengers']
                     available_seats = {
                         '1': flight.first_class_seats_available,
                         '2': flight.business_class_seats_available,
                         '3': flight.economy_class_seats_available,
                     }
-                    if available_seats[fare_class] < n_passengers:
+                    if available_seats[fare_class_pk] < n_passengers:
                         results = results.exclude(pk=flight.pk)
+
+                    else:
+                        fare_class = FareClass.objects.get(pk=fare_class_pk)
+                        fare_class_price = get_fare_class_price(flight, fare_class)
+                        try:
+                            discount = Discount.objects.get(flight=flight)
+                            discount_fields = {
+                                '1': discount.first_class_discount,
+                                '2': discount.business_class_discount,
+                                '3': discount.economy_class_discount,
+                            }
+                            discount_percent = discount_fields[fare_class_pk]
+                        except Discount.DoesNotExist:
+                            discount_percent = None
+
+                        booking_price = round(fare_class_price * n_passengers, 2)
+            print("fare_class_pk=", fare_class_pk)
             return render(request, "passenger_interface/ticket_search.html",
-                          {'form': form, 'results': results, 'form_data': cd, })
+                          {'form': form, 'results': results, 'form_data': cd,
+                           'n_passengers': n_passengers, 'booking_price': booking_price,
+                           'discount_percent': discount_percent, 'fare_class_pk': fare_class_pk})
         else:
             return render(request, "passenger_interface/ticket_search.html", {'form': form})
     else:
@@ -120,6 +139,8 @@ def tickets_form(request):
     n_passengers = int(request.GET.get('n_passengers'))
     TicketsFormset = formset_factory(TicketForm, extra=n_passengers)
     flight_id = request.GET.get('flight_id')
+    fare_class_id = int(request.GET.get('fare_class'))
+    fare_class = FareClass.objects.get(pk=fare_class_id)
     flight = get_object_or_404(Flight, id=flight_id)
     if request.method == 'POST':
         formset = TicketsFormset(request.POST or None)
@@ -169,8 +190,11 @@ def tickets_form(request):
         return render(request, 'passenger_interface/tickets_form.html',
                       {'formset': TicketsFormset, 'flight': flight, })
     else:
+        one_ticket_price = round(get_fare_class_price(flight, fare_class), 2)
+        comforts_prices = ComfortsPrice.objects.get(fare_class=fare_class)
         return render(request, 'passenger_interface/tickets_form.html',
-                      {'formset': TicketsFormset, 'flight': flight, })
+                      {'formset': TicketsFormset, 'flight': flight, 'fare_class': fare_class,
+                       'one_ticket_price': one_ticket_price, 'comforts_prices': comforts_prices, })
 
 
 @login_required

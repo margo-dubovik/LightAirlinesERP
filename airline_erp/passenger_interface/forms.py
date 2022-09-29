@@ -21,7 +21,6 @@ class FlightSearchForm(ModelForm):
 class TicketForm(forms.ModelForm):
     passenger_first_name = forms.CharField(max_length=150)
     passenger_last_name = forms.CharField(max_length=150)
-    fare_class = forms.ChoiceField(choices=((3, "Economy"), (2, "Business",), (1, "First"),), initial="Economy")
     n_bags = forms.IntegerField(label="Number of bags")
     lunch = forms.BooleanField(required=False)
 

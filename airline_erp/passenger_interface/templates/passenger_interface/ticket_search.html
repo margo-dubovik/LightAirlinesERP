@@ -27,13 +27,17 @@
     <ul class="list-group">
     {% for flight in results %}
         <li class="list-group-item" style="width: 30rem;">
+            {% if discount_percent %}
+            <div class="position-absolute top-0 end-0 btn btn-primary">-{{ discount_percent }}%</div>
+            {% endif %}
             <p><small>from: </small><strong>{{ flight.origin.city }} / {{ flight.origin.iata }}</strong></p>
             <p><small>to: </small><strong>{{ flight.destination.city }} / {{ flight.destination.iata }}</strong></p>
             <time datetime="{{ flight.departure_time }}">
               <span><small>departure: </small> {{ flight.departure_time }}</span>
             </time>
-            <p>duration: {{ flight.duration }} hours</p>
-            <a href="{% url 'tickets-form' %}?flight_id={{ flight.id }}&n_passengers={{ form_data.n_passengers }}"
+            <p><small>duration: </small> {{ flight.duration }} hours</p>
+            <p><small><strong>{{ n_passengers }}</strong> ticket(s) price: </small><strong>{{ booking_price }} €</strong></p>
+            <a href="{% url 'tickets-form' %}?flight_id={{ flight.id }}&fare_class={{ fare_class_pk }}&n_passengers={{ form_data.n_passengers }}"
                class="btn btn-primary">
                 Order tickets
             </a>
