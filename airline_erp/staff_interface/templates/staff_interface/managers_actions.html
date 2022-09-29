@@ -1,0 +1,20 @@
+{% extends 'staff_cabinet_base.html' %}
+{% block profile_content %}
+
+<div class="container">
+    <ul class="list-group">
+        <li class="list-group-item">
+            <a href="" class="text-decoration-none link-dark">Managers list</a>
+        </li>
+        <li class="list-group-item">
+            <a href="{% url 'add-manager' %}" class="text-decoration-none link-dark">Add Manager</a>
+        </li>
+        <li class="list-group-item">
+            <a href="" class="text-decoration-none link-dark">Remove Manager</a>
+        </li>
+    </ul>
+
+
+</div>
+
+{% endblock %}

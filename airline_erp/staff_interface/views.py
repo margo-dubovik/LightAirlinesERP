@@ -6,7 +6,7 @@ from django.conf import settings
 
 from account.models import StaffProfile
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
-from .forms import TicketCodeForm, BagForm
+from .forms import TicketCodeForm, BagForm, StaffUserCreationForm, ManagerProfileCreationForm
 from passenger_interface.views import get_baggage_price
 
 
@@ -127,6 +127,10 @@ def checkin_passenger(request):
 
             return render(request, 'staff_interface/checkin_passenger.html',
                           {'form': form, 'result': result, 'success': success, })
+        else:
+            return render(request, 'staff_interface/checkin_passenger.html',
+                          {'form': form, })
+
     else:
         form = TicketCodeForm()
         return render(request, 'staff_interface/checkin_passenger.html', {'form': form, })
@@ -152,6 +156,10 @@ def checkin_add_options(request):
             return render(request, 'staff_interface/checkin_add_options.html',
                           {'form': form, 'ticket': ticket, 'flight': flight, 'surcharge': surcharge})
 
+        else:
+            return render(request, 'staff_interface/checkin_add_options.html',
+                          {'form': form, 'ticket': ticket, 'flight': flight, })
+
     else:
         form = BagForm()
         return render(request, 'staff_interface/checkin_add_options.html',
@@ -162,3 +170,47 @@ def checkin_add_options(request):
 @user_passes_test(is_supervisor)
 def supervisor_profile(request):
     return render(request, 'staff_interface/supervisor_profile.html')
+
+
+@login_required
+@user_passes_test(is_supervisor)
+def managers_actions(request):
+    return render(request, 'staff_interface/managers_actions.html')
+
+
+@login_required
+@user_passes_test(is_supervisor)
+def managers_list(request):
+
+    return render(request, 'staff_interface/managers_list.html')
+
+
+@login_required
+@user_passes_test(is_supervisor)
+def add_manager(request):
+    if request.method == 'POST':
+        creation_form = StaffUserCreationForm(request.POST, prefix='staff_user')
+        profile_form = ManagerProfileCreationForm(request.POST, prefix='manager_profile')
+        if creation_form.is_valid() and profile_form.is_valid():
+            staff_user = creation_form.save()
+
+            profile_cd = profile_form.cleaned_data
+            StaffProfile.objects.create(user=staff_user, airport=profile_cd['airport'].get(),
+                                        role=profile_cd['role'])
+
+            messages.success(request, "New manager added successfully!")
+            return redirect(reverse('managers-actions'))
+
+        else:
+            return render(request, 'staff_interface/supervisor_add_manager.html',
+                          {'creation_form': creation_form,
+                           'profile_form': profile_form,
+                           })
+
+    else:
+        creation_form = StaffUserCreationForm()
+        profile_form = ManagerProfileCreationForm()
+        return render(request, 'staff_interface/supervisor_add_manager.html',
+                      {'creation_form': creation_form,
+                       'profile_form': profile_form,
+                       })

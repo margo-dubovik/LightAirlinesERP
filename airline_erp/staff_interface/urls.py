@@ -9,4 +9,6 @@ urlpatterns = [
     path('checkin/', views.checkin_passenger, name="checkin"),
     path('checkin-options/', views.checkin_add_options, name="checkin-options"),
     path('profile/supervisor/', views.supervisor_profile, name="supervisor-profile"),
+    path('supervisor/managers-actions', views.managers_actions, name="managers-actions"),
+    path('supervisor/add-manager', views.add_manager, name="add-manager"),
 ]

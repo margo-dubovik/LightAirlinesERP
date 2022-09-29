@@ -50,9 +50,7 @@ class StaffProfile(models.Model):
 
 def create_profile(sender, instance, created, **kwargs):
     if created:
-        if instance.is_airline_staff:
-            StaffProfile.objects.create(user=instance)
-        else:
+        if not instance.is_airline_staff:
             PassengerProfile.objects.create(user=instance)
 
 
