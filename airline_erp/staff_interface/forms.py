@@ -47,3 +47,8 @@ class ManagerProfileCreationForm(forms.Form):
         )
 
 
+class ManagerSearchForm(forms.Form):
+    manager_first_name = forms.CharField(max_length=150, required=True)
+    manager_last_name = forms.CharField(max_length=150, required=True)
+
+

@@ -12,4 +12,5 @@ urlpatterns = [
     path('supervisor/managers-actions', views.managers_actions, name="managers-actions"),
     path('supervisor/managers-list', views.managers_list, name="managers-list"),
     path('supervisor/add-manager', views.add_manager, name="add-manager"),
+    path('supervisor/remove-manager', views.remove_manager, name="remove-manager"),
 ]

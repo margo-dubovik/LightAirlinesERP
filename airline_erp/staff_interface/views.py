@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
@@ -7,7 +8,7 @@ from django.conf import settings
 
 from account.models import StaffProfile
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
-from .forms import TicketCodeForm, BagForm, StaffUserCreationForm, ManagerProfileCreationForm
+from .forms import TicketCodeForm, BagForm, StaffUserCreationForm, ManagerProfileCreationForm, ManagerSearchForm
 from passenger_interface.views import get_baggage_price
 
 CustomUser = get_user_model()
@@ -221,3 +222,32 @@ def add_manager(request):
                       {'creation_form': creation_form,
                        'profile_form': profile_form,
                        })
+
+
+@login_required
+@user_passes_test(is_supervisor)
+def remove_manager(request):
+    confirmed = request.GET.get('confirmed')
+    manager_id = request.GET.get('manager_id')
+    if confirmed:
+        manager = get_object_or_404(StaffProfile, pk=manager_id)
+        first_name = manager.user.first_name
+        last_name = manager.user.last_name
+        manager.user.delete()
+        messages.info(request, f"{first_name} {last_name}'s account was deleted.")
+        return redirect(reverse('remove-manager'))
+    if request.method == 'POST':
+        form = ManagerSearchForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            results = StaffProfile.objects.filter(
+                Q(user__first_name__icontains=cd['manager_first_name'],
+                  user__last_name__icontains=cd['manager_last_name'], )
+            )
+            return render(request, 'staff_interface/remove_manager.html',
+                          {'form': form, 'results': results, })
+        else:
+            return render(request, 'staff_interface/remove_manager.html', {'form': form, })
+    else:
+        form = ManagerSearchForm()
+        return render(request, 'staff_interface/remove_manager.html', {'form': form, })
