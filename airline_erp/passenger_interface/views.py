@@ -16,19 +16,6 @@ from django.conf import settings
 from .forms import FlightSearchForm, TicketForm
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
 
-from dal import autocomplete
-
-
-#
-# class AirportAutocomplete(autocomplete.Select2QuerySetView):
-#     def get_queryset(self):
-#         qs = Airport.objects.all()
-#         print("IM IN A VIEW")
-#         if self.q:
-#             qs = qs.filter(Q(name__istartswith=self.q) | Q(city__istartswith=self.q))
-#
-#         return qs
-
 
 def get_fare_class_price(flight, fare_class):
     price_fields = {
@@ -100,12 +87,12 @@ def ticket_search(request):
             cd = form.cleaned_data
             if cd['date']:
                 results = Flight.objects.filter(
-                    Q(origin__city__icontains=cd['origin'], destination__city__icontains=cd['destination'],
+                    Q(origin=cd['origin'], destination=cd['destination'],
                       departure_time__icontains=cd['date'], departure_time__gt=timezone.now(), is_cancelled=False, )
                 )
             else:
                 results = Flight.objects.filter(
-                    Q(origin__city__icontains=cd['origin'], destination__city__icontains=cd['destination'],
+                    Q(origin=cd['origin'], destination=cd['destination'],
                       departure_time__gt=timezone.now(), is_cancelled=False, )
                 )
             if results:

@@ -19,17 +19,24 @@
     </form>
 </div>
 
+<br>
+
 {% if not initial %}
 <div class="container">
     <h2>Results of your search:</h2>
     <ul class="list-group">
     {% for flight in results %}
-        <li class="list-group-item">
-            <p>{{ flight }}</p>
-            <p>duration: {{ flight.duration }}</p>
+        <li class="list-group-item" style="width: 30rem;">
+            <p><small>from: </small><strong>{{ flight.origin.city }} / {{ flight.origin.iata }}</strong></p>
+            <p><small>to: </small><strong>{{ flight.destination.city }} / {{ flight.destination.iata }}</strong></p>
+            <time datetime="{{ flight.departure_time }}">
+              <span><small>departure: </small> {{ flight.departure_time }}</span>
+            </time>
+            <p>duration: {{ flight.duration }} hours</p>
             <a href="{% url 'tickets-form' %}?flight_id={{ flight.id }}&n_passengers={{ form_data.n_passengers }}"
                class="btn btn-primary">
-                Order tickets</a>
+                Order tickets
+            </a>
         </li>
     {% empty %}
         <p>No flights found. Try different search parameters</p>
