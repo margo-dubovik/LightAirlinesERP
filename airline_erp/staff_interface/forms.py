@@ -7,3 +7,7 @@ from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, 
 
 class TicketCodeForm(forms.Form):
     ticket_code = forms.IntegerField(label="Ticket Code")
+
+
+class BagForm(forms.Form):
+    additional_bags = forms.IntegerField(label="Number of additional bags")

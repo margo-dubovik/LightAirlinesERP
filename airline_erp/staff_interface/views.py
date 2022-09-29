@@ -6,7 +6,8 @@ from django.conf import settings
 
 from account.models import StaffProfile
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
-from .forms import TicketCodeForm
+from .forms import TicketCodeForm, BagForm
+from passenger_interface.views import get_baggage_price
 
 
 def is_gate_manager(user):
@@ -134,7 +135,28 @@ def checkin_passenger(request):
 @login_required
 @user_passes_test(lambda u: is_check_in_manager(u) or is_supervisor(u))
 def checkin_add_options(request):
-    pass
+    ticket_code = request.GET.get('ticket_code')
+    ticket = Ticket.objects.get(ticket_code=ticket_code)
+    flight = ticket.booking.flight
+    if request.method == 'POST':
+        form = BagForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            additional_bags = cd['additional_bags']
+            ticket.n_bags = additional_bags + ticket.n_bags
+            old_baggage_price = ticket.baggage_price
+            ticket.baggage_price = get_baggage_price(ticket)
+            surcharge = ticket.baggage_price - old_baggage_price
+            ticket.save()
+
+            return render(request, 'staff_interface/checkin_add_options.html',
+                          {'form': form, 'ticket': ticket, 'flight': flight, 'surcharge': surcharge})
+
+    else:
+        form = BagForm()
+        return render(request, 'staff_interface/checkin_add_options.html',
+                      {'form': form, 'ticket': ticket, 'flight': flight})
+
 
 @login_required
 @user_passes_test(is_supervisor)
