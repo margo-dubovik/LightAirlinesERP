@@ -1,0 +1,21 @@
+{% extends 'staff_cabinet_base.html' %}
+{% block profile_content %}
+
+<div class="container">
+    <ul class="list-group">
+        <li class="list-group-item">
+            <a href="" class="text-decoration-none link-dark">
+                Flights list
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="{% url 'add-flight' %}" class="text-decoration-none link-dark">Add Flight</a>
+        </li>
+        <li class="list-group-item">
+            <a href="" class="text-decoration-none link-dark">Cancel Flight</a>
+        </li>
+    </ul>
+
+</div>
+
+{% endblock %}

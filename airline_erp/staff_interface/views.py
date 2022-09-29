@@ -8,7 +8,8 @@ from django.conf import settings
 
 from account.models import StaffProfile
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
-from .forms import TicketCodeForm, BagForm, StaffUserCreationForm, ManagerProfileCreationForm, ManagerSearchForm
+from .forms import TicketCodeForm, BagForm, StaffUserCreationForm, ManagerProfileCreationForm, ManagerSearchForm, \
+    AddFlightForm
 from passenger_interface.views import get_baggage_price
 
 CustomUser = get_user_model()
@@ -251,3 +252,25 @@ def remove_manager(request):
     else:
         form = ManagerSearchForm()
         return render(request, 'staff_interface/remove_manager.html', {'form': form, })
+
+
+@login_required
+@user_passes_test(is_supervisor)
+def flights_actions(request):
+    return render(request, 'staff_interface/flights_actions.html')
+
+
+@login_required
+@user_passes_test(is_supervisor)
+def add_flight(request):
+    if request.method == 'POST':
+        form = AddFlightForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "New flight added!")
+            return redirect(reverse('flights-actions'))
+        else:
+            return render(request, 'staff_interface/add_flight.html', {'form': form})
+    else:
+        form = AddFlightForm()
+        return render(request, 'staff_interface/add_flight.html', {'form': form})

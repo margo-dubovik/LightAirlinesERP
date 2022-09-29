@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'passenger_interface',
     'staff_interface',
     'social_django',
+    'bootstrap_datepicker_plus',
 ]
 
 MIDDLEWARE = [

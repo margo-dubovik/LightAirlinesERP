@@ -47,13 +47,14 @@ class Flight(models.Model):
     origin = models.ForeignKey(Airport, on_delete=models.CASCADE)
     destination = models.ForeignKey(Airport, on_delete=models.CASCADE, related_name="flights")
     airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE, related_name="flights")
-    first_class_seats_occupied = models.IntegerField()
-    business_class_seats_occupied = models.IntegerField()
-    economy_class_seats_occupied = models.IntegerField()
+    first_class_seats_occupied = models.IntegerField(default=0)
+    business_class_seats_occupied = models.IntegerField(default=0)
+    economy_class_seats_occupied = models.IntegerField(default=0)
     first_class_price = models.DecimalField(max_digits=6, decimal_places=2)
     business_class_price = models.DecimalField(max_digits=6, decimal_places=2)
     economy_class_price = models.DecimalField(max_digits=6, decimal_places=2)
-    supervisor = models.ForeignKey(StaffProfile, on_delete=models.CASCADE, related_name="flights")
+    supervisor = models.ForeignKey(StaffProfile, limit_choices_to={"role": 'supervisor'},
+                                   on_delete=models.CASCADE, related_name="flights", )
     is_cancelled = models.BooleanField(default=False)
 
     def __str__(self):
