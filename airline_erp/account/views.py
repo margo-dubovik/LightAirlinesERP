@@ -65,7 +65,7 @@ def passenger_signup(request):
         return render(request, 'account/passenger_reg_form.html', {'form': form})
 
 
-def activate_passenger(request, uidb64, token):
+def activate_passenger(request, uidb64, token, backend='django.contrib.auth.backends.ModelBackend'):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
         user = CustomUser.objects.get(pk=uid)
@@ -74,7 +74,7 @@ def activate_passenger(request, uidb64, token):
     if user is not None and account_activation_token.check_token(user, token):
         user.is_active = True
         user.save()
-        login(request, user)
+        login(request, user, backend=backend)
         next_param = request.GET.get('next')
         if next_param:
             url = next_param

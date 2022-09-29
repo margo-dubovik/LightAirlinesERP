@@ -17,13 +17,6 @@ class CustomUserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_airline_staff_user(self, email, password, **extra_fields):
-        extra_fields.setdefault('is_airline_staff', True)
-        extra_fields.setdefault('is_active', True)
-        if extra_fields.get('is_airline_staff') is not True:
-            raise ValueError(_('Staff user must have is_airline_staff=True.'))
-        return self.create_user(email, password, **extra_fields)
-
     def create_superuser(self, email, password, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)

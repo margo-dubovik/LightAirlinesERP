@@ -20,12 +20,23 @@ class CustomUserCreationForm(UserCreationForm):
         user = super(CustomUserCreationForm, self).save(commit=False)
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
-        if self.cleaned_data['is_airline_staff']:
-            user.is_airline_staff = True
         if commit:
             user.save()
         return user
 
+
+class StaffUserCreationForm(CustomUserCreationForm):
+
+    prefix = 'staff_user'
+
+    def save(self, commit=True):
+        user = super(CustomUserCreationForm, self).save(commit=False)
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.is_airline_staff = True
+        if commit:
+            user.save()
+        return user
 
 class CustomUserChangeForm(UserChangeForm):
 

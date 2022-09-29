@@ -7,10 +7,11 @@ from django.contrib import messages
 from django.conf import settings
 
 from account.models import StaffProfile
+from account.forms import StaffUserCreationForm
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
 from django.utils import timezone
 
-from .forms import TicketCodeForm, BagForm, StaffUserCreationForm, ManagerProfileCreationForm, ManagerSearchForm, \
+from .forms import TicketCodeForm, BagForm, ManagerProfileCreationForm, ManagerSearchForm, \
     AddFlightForm, StaffFlightSearchForm
 from passenger_interface.views import get_baggage_price
 
