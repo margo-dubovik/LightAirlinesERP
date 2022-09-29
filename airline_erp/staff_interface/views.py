@@ -1,5 +1,6 @@
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
 from django.conf import settings
@@ -9,6 +10,7 @@ from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, 
 from .forms import TicketCodeForm, BagForm, StaffUserCreationForm, ManagerProfileCreationForm
 from passenger_interface.views import get_baggage_price
 
+CustomUser = get_user_model()
 
 def is_gate_manager(user):
     return user.staff_profile.role == 'gate_manager'
@@ -26,17 +28,18 @@ def is_supervisor(user):
 @user_passes_test(lambda u: u.is_airline_staff)
 def staff_profile_redirect(request):
     if is_gate_manager(request.user):
-        return redirect(reverse('gate-manager-profile'))
+        return redirect(reverse('gate-manager-profile', kwargs={'id': request.user.staff_profile.pk}))
     if is_check_in_manager(request.user):
-        return redirect(reverse('checkin-manager-profile'))
+        return redirect(reverse('checkin-manager-profile', kwargs={'id': request.user.staff_profile.pk}))
     if is_supervisor(request.user):
-        return redirect(reverse('supervisor-profile'))
+        return redirect(reverse('supervisor-profile', kwargs={'id': request.user.staff_profile.pk}))
 
 
 @login_required
-@user_passes_test(is_gate_manager)
-def gate_manager_profile(request):
-    return render(request, 'staff_interface/gate_manager_profile.html')
+@user_passes_test(lambda u: is_gate_manager(u) or is_supervisor(u))
+def gate_manager_profile(request, id):
+    profile = get_object_or_404(StaffProfile, pk=id)
+    return render(request, 'staff_interface/gate_manager_profile.html', {'profile': profile})
 
 
 @login_required
@@ -86,9 +89,10 @@ def register_boarding(request):
 
 
 @login_required
-@user_passes_test(is_check_in_manager)
-def checkin_manager_profile(request):
-    return render(request, 'staff_interface/checkin_manager_profile.html')
+@user_passes_test(lambda u: is_check_in_manager(u) or is_supervisor(u))
+def checkin_manager_profile(request, id):
+    profile = get_object_or_404(StaffProfile, pk=id)
+    return render(request, 'staff_interface/checkin_manager_profile.html', {'profile': profile})
 
 
 @login_required
@@ -168,8 +172,9 @@ def checkin_add_options(request):
 
 @login_required
 @user_passes_test(is_supervisor)
-def supervisor_profile(request):
-    return render(request, 'staff_interface/supervisor_profile.html')
+def supervisor_profile(request, id):
+    profile = get_object_or_404(StaffProfile, pk=id)
+    return render(request, 'staff_interface/supervisor_profile.html', {'profile': profile})
 
 
 @login_required
@@ -181,8 +186,10 @@ def managers_actions(request):
 @login_required
 @user_passes_test(is_supervisor)
 def managers_list(request):
-
-    return render(request, 'staff_interface/managers_list.html')
+    manager_type = request.GET.get('manager_type')
+    managers = StaffProfile.objects.filter(role=manager_type)
+    return render(request, 'staff_interface/managers_list.html',
+                  {'managers': managers, 'manager_type': manager_type, })
 
 
 @login_required

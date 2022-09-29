@@ -1,9 +1,10 @@
 {% extends 'staff_cabinet_base.html' %}
 {% block profile_content %}
 
-<p>email: {{ request.user.email }}</p>
-<p>first name: {{ request.user.first_name }}</p>
-<p>last name: {{ request.user.last_name }}</p>
-<p>role: Check-in Manager</p>
+<p>Email: {{ profile.user.email }}</p>
+<p>First name: {{ profile.user.first_name }}</p>
+<p>Last name: {{ profile.user.last_name }}</p>
+<p>Airport: {{ profile.airport }}</p>
+<p>Role: Check-in Manager</p>
 
 {% endblock %}

@@ -4,7 +4,14 @@
 <div class="container">
     <ul class="list-group">
         <li class="list-group-item">
-            <a href="" class="text-decoration-none link-dark">Managers list</a>
+            <a href="{% url 'managers-list' %}?manager_type=gate_manager" class="text-decoration-none link-dark">
+                Gate Managers list
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="{% url 'managers-list' %}?manager_type=checkin_manager" class="text-decoration-none link-dark">
+                Check-in Managers list
+            </a>
         </li>
         <li class="list-group-item">
             <a href="{% url 'add-manager' %}" class="text-decoration-none link-dark">Add Manager</a>

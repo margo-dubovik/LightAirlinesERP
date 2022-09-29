@@ -8,7 +8,7 @@
                 <ul class="navbar-nav flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start">
                 {% if request.user.staff_profile.role == 'gate_manager' %}
                     <li>
-                        <a href="{% url 'gate-manager-profile' %}" class="text-decoration-none link-dark align-middle px-0">
+                        <a href="{% url 'gate-manager-profile' id=request.user.staff_profile.pk %}" class="text-decoration-none link-dark align-middle px-0">
                             <span class="ms-1 d-none d-sm-inline">Profile</span>
                         </a>
                     </li>
@@ -20,7 +20,7 @@
                     </li>
                 {% elif request.user.staff_profile.role == 'checkin_manager' %}
                     <li>
-                        <a href="{% url 'checkin-manager-profile' %}" class="text-decoration-none link-dark align-middle px-0">
+                        <a href="{% url 'checkin-manager-profile' id=request.user.staff_profile.pk %}" class="text-decoration-none link-dark align-middle px-0">
                             <span class="ms-1 d-none d-sm-inline">Profile</span>
                         </a>
                     </li>
@@ -32,7 +32,7 @@
                     </li>
                 {% elif request.user.staff_profile.role == 'supervisor' %}
                     <li>
-                        <a href="{% url 'supervisor-profile' %}" class="text-decoration-none link-dark align-middle px-0">
+                        <a href="{% url 'supervisor-profile' id=request.user.staff_profile.pk %}" class="text-decoration-none link-dark align-middle px-0">
                             <span class="ms-1 d-none d-sm-inline">Profile</span>
                         </a>
                     </li>

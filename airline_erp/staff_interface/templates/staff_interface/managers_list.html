@@ -1,0 +1,22 @@
+{% extends 'staff_cabinet_base.html' %}
+{% block profile_content %}
+
+<div class="container">
+    <ul class="list-group">
+    {% for manager in managers %}
+        <li class="list-group-item">
+            {% if manager_type == 'gate_manager' %}
+            <a href="{% url 'gate-manager-profile' id=manager.pk %}" class="text-decoration-none link-dark">
+                {{ manager.user.first_name }} {{ manager.user.last_name }}, {{ manager.airport }}
+            </a>
+            {% elif manager_type == 'checkin_manager' %}
+            <a href="{% url 'checkin-manager-profile' id=manager.pk %}" class="text-decoration-none link-dark">
+                {{ manager.user.first_name }} {{ manager.user.last_name }}, {{ manager.airport }}
+            </a>
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
