@@ -38,7 +38,7 @@ class Airport(models.Model):
     country_code = models.CharField(max_length=2)
 
     def __str__(self):
-        return f"{self.name}, {self.iata}, {self.city}, {self.country_code}"
+        return f"{self.city}, {self.name} ({self.iata}), {self.country_code}"
 
 
 class Flight(models.Model):

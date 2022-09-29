@@ -15,4 +15,5 @@ urlpatterns = [
     path('supervisor/remove-manager', views.remove_manager, name="remove-manager"),
     path('supervisor/flights-actions', views.flights_actions, name="flights-actions"),
     path('supervisor/add-flight', views.add_flight, name="add-flight"),
+    path('supervisor/cancel-flight', views.cancel_flight, name="cancel-flight"),
 ]

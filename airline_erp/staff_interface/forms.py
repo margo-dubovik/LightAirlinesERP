@@ -66,3 +66,12 @@ class AddFlightForm(ModelForm):
         }
 
 
+class StaffFlightSearchForm(ModelForm):
+    date = forms.DateField(widget=forms.widgets.DateInput(attrs={'type': 'date'}),
+                           help_text="if no specific date, leave blank", required=False)
+
+    class Meta:
+        model = Flight
+        fields = (
+            'origin', 'destination',
+        )

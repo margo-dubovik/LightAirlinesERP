@@ -101,12 +101,12 @@ def ticket_search(request):
             if cd['date']:
                 results = Flight.objects.filter(
                     Q(origin__city__icontains=cd['origin'], destination__city__icontains=cd['destination'],
-                      departure_time__icontains=cd['date'], departure_time__gt=timezone.now())
+                      departure_time__icontains=cd['date'], departure_time__gt=timezone.now(), is_cancelled=False, )
                 )
             else:
                 results = Flight.objects.filter(
                     Q(origin__city__icontains=cd['origin'], destination__city__icontains=cd['destination'],
-                      departure_time__gt=timezone.now())
+                      departure_time__gt=timezone.now(), is_cancelled=False, )
                 )
             if results:
                 for flight in results:

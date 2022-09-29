@@ -8,8 +8,10 @@ from django.conf import settings
 
 from account.models import StaffProfile
 from airline.models import FareClass, ComfortsPrice, Airplane, Airport, Flight, Booking, Ticket, Discount
+from django.utils import timezone
+
 from .forms import TicketCodeForm, BagForm, StaffUserCreationForm, ManagerProfileCreationForm, ManagerSearchForm, \
-    AddFlightForm
+    AddFlightForm, StaffFlightSearchForm
 from passenger_interface.views import get_baggage_price
 
 CustomUser = get_user_model()
@@ -274,3 +276,38 @@ def add_flight(request):
     else:
         form = AddFlightForm()
         return render(request, 'staff_interface/add_flight.html', {'form': form})
+
+
+@login_required
+@user_passes_test(is_supervisor)
+def cancel_flight(request):
+    confirmed = request.GET.get('confirmed')
+    flight_id = request.GET.get('flight_id')
+    if confirmed:
+        flight = get_object_or_404(Flight, pk=flight_id)
+        flight.is_cancelled = True
+        flight.save()
+        messages.info(request, f"Flight is cancelled.")
+        return redirect(reverse('cancel-flight'))
+    if request.method == 'POST':
+        form = StaffFlightSearchForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            if cd['date']:
+                results = Flight.objects.filter(
+                    Q(origin=cd['origin'], destination=cd['destination'],
+                      departure_time__icontains=cd['date'], departure_time__gt=timezone.now(), is_cancelled=False, )
+                )
+            else:
+                results = Flight.objects.filter(
+                    Q(origin=cd['origin'], destination=cd['destination'],
+                      departure_time__gt=timezone.now(), is_cancelled=False, )
+                )
+            print("result=", results)
+            return render(request, 'staff_interface/cancel_flight.html',
+                          {'form': form, 'results': results, })
+        else:
+            return render(request, 'staff_interface/cancel_flight.html', {'form': form, })
+    else:
+        form = StaffFlightSearchForm()
+        return render(request, 'staff_interface/cancel_flight.html', {'form': form, })

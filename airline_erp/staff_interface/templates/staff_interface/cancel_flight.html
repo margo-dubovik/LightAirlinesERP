@@ -1,0 +1,52 @@
+{% extends 'staff_cabinet_base.html' %}
+{% block profile_content %}
+
+<div class="container">
+    <h4>Cancel flight</h4>
+    {% if form %}
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        {{ form.errors }}
+    </div>
+    {% endif %}
+
+
+    <p>Enter flight information:</p>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        {{ form.media }}
+        <button type="submit">Find</button>
+    </form>
+    {% endif %}
+
+    <br>
+
+    {% if results %}
+    <ul class="list-group">
+    {% for flight in results %}
+        <li class="list-group-item">
+            <p><small>from: </small><strong>{{ flight.origin.city }} / {{ flight.origin.iata }}</strong></p>
+            <p><small>to: </small><strong>{{ flight.destination.city }} / {{ flight.destination.iata }}</strong></p>
+            <time datetime="{{ flight.departure_time }}">
+              <span><small>departure: </small> {{ flight.departure_time }}</span>
+            </time>
+            <div class="float-end">
+                <form method="POST" action="{% url 'cancel-flight'%}?flight_id={{flight.pk}}&confirmed=True">
+                    {% csrf_token %}
+                    <button class="btn btn-danger" type="submit"
+                            onclick="return confirm('Are you sure you want to cancel this flight?');">
+                        Cancel flight
+                    </button>
+                </form>
+            </div>
+        </li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <p>No flights found</p>
+    {% endif %}
+</div>
+
+{% endblock %}
