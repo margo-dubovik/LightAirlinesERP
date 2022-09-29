@@ -35,7 +35,15 @@
         <br>
         {% endfor %}
         <br>
-        <button type="submit" class="btn btn-primary">Order tickets</button>
+
+        {% if total_booking_price %}
+            <p><span class="alert alert-info"> Booking total price: <strong>{{ total_booking_price }}€</strong></span></p>
+            <input name="confirmed" type='hidden' value="True">
+            <br>
+            <button type="submit" class="btn btn-primary">Order tickets</button>
+        {% else %}
+            <button type="submit" class="btn btn-primary">Calculate booking price</button>
+        {% endif %}
     </form>
 </div>
 {% endblock %}

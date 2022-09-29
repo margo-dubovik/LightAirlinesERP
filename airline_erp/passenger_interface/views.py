@@ -99,6 +99,7 @@ def send_email(request, booking):
         fail_silently=True,
     )
 
+
 def ticket_search(request):
     if request.method == 'POST':
         form = FlightSearchForm(request.POST)
@@ -141,7 +142,7 @@ def ticket_search(request):
                             discount_percent = None
 
                         booking_price = round(fare_class_price * n_passengers, 2)
-            print("fare_class_pk=", fare_class_pk)
+
             return render(request, "passenger_interface/ticket_search.html",
                           {'form': form, 'results': results, 'form_data': cd,
                            'n_passengers': n_passengers, 'booking_price': booking_price,
@@ -153,6 +154,25 @@ def ticket_search(request):
         return render(request, "passenger_interface/ticket_search.html", {'form': form, 'initial': True})
 
 
+def ticket_price_calculate(flight, fare_class, lunch, n_bags,):
+    total_price = 0
+    fare_class_price = get_fare_class_price(flight, fare_class)
+    comforts_prices = ComfortsPrice.objects.get(fare_class=fare_class)
+    if lunch:
+        total_price += comforts_prices.lunch_price
+    if n_bags == 0:
+        bags_price = 0
+    elif n_bags == 1:
+        bags_price = comforts_prices.first_bag_price
+    elif n_bags == 2:
+        bags_price = comforts_prices.first_bag_price + comforts_prices.second_bag_price
+    else:
+        bags_price = comforts_prices.three_or_more_bags_price
+
+    total_price += fare_class_price + bags_price
+    return total_price
+
+
 @login_required
 def tickets_form(request):
     n_passengers = int(request.GET.get('n_passengers'))
@@ -161,40 +181,59 @@ def tickets_form(request):
     fare_class_id = int(request.GET.get('fare_class'))
     fare_class = FareClass.objects.get(pk=fare_class_id)
     flight = get_object_or_404(Flight, id=flight_id)
+    one_ticket_price = round(get_fare_class_price(flight, fare_class), 2)
+    comforts_prices = ComfortsPrice.objects.get(fare_class=fare_class)
     if request.method == 'POST':
         formset = TicketsFormset(request.POST or None)
         if formset.is_valid():
-            booking = Booking(flight=flight, purchaser=request.user.passenger_profile)
-            booking.save()
-            total_booking_price = 0
-            for form in formset:
-                cd = form.cleaned_data
-                ticket = form.save(commit=False)
-                ticket.booking = booking
-                ticket.fare_class = get_object_or_404(FareClass, pk=cd['fare_class'])
-                ticket.baggage_price = get_baggage_price(ticket)
-                fare_class_price = get_fare_class_price(flight, ticket.fare_class)
-                lunch_price = get_lunch_price(ticket)
-                ticket.total_price = fare_class_price + ticket.baggage_price + lunch_price
-                ticket.save()
-                total_booking_price += ticket.total_price
-            booking.total_price = total_booking_price
-            booking.save()
-            update_flight_seats(flight)  # add just taken seats
+            confirmed = request.POST.get('confirmed')
+            print("confirmed=", confirmed)
+            if confirmed:  # if passenger confirmed order
+                booking = Booking(flight=flight, purchaser=request.user.passenger_profile)
+                booking.save()
+                total_booking_price = 0
+                for form in formset:
+                    cd = form.cleaned_data
+                    ticket = form.save(commit=False)
+                    ticket.booking = booking
+                    ticket.fare_class = fare_class
+                    ticket.baggage_price = get_baggage_price(ticket)
+                    fare_class_price = get_fare_class_price(flight, ticket.fare_class)
+                    lunch_price = get_lunch_price(ticket)
+                    ticket.total_price = fare_class_price + ticket.baggage_price + lunch_price
+                    ticket.save()
+                    total_booking_price += ticket.total_price
+                booking.total_price = total_booking_price
+                booking.save()
+                update_flight_seats(flight)  # add just taken seats
 
-            send_email(request, booking)
+                send_email(request, booking)
 
-            messages.success(request, f"Tickets booked successfully! They were sent to your email."
-                                      f"You can also find them in your profile")
-            return redirect(reverse('upcoming-bookings'))
+                messages.success(request, f"Tickets booked successfully! They were sent to your email."
+                                          f"You can also find them in your profile")
+                return redirect(reverse('upcoming-bookings'))
+
+            else:  # calculate booking price
+                total_booking_price = 0
+                for form in formset:
+                    cd = form.cleaned_data
+                    lunch = cd['lunch']
+                    n_bags = cd['n_bags']
+                    ticket_price = ticket_price_calculate(flight, fare_class, lunch, n_bags)
+                    total_booking_price += ticket_price
+                total_booking_price = round(total_booking_price, 2)
+                return render(request, 'passenger_interface/tickets_form.html',
+                              {'formset': formset, 'flight': flight, 'fare_class': fare_class,
+                               'one_ticket_price': one_ticket_price, 'comforts_prices': comforts_prices,
+                               'total_booking_price': total_booking_price})
+
         else:
-            messages.error(request, f"Formset errors: {formset.errors}")
-            messages.error(request, f"Formset non-form errors: {formset.non_form_errors()}")
+            messages.error(request, f"Form errors: {formset.errors}")
+            messages.error(request, f"Non-form errors: {formset.non_form_errors()}")
         return render(request, 'passenger_interface/tickets_form.html',
-                      {'formset': TicketsFormset, 'flight': flight, })
+                      {'formset': TicketsFormset, 'flight': flight, 'fare_class': fare_class,
+                       'one_ticket_price': one_ticket_price, 'comforts_prices': comforts_prices,})
     else:
-        one_ticket_price = round(get_fare_class_price(flight, fare_class), 2)
-        comforts_prices = ComfortsPrice.objects.get(fare_class=fare_class)
         return render(request, 'passenger_interface/tickets_form.html',
                       {'formset': TicketsFormset, 'flight': flight, 'fare_class': fare_class,
                        'one_ticket_price': one_ticket_price, 'comforts_prices': comforts_prices, })
