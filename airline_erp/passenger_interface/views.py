@@ -33,7 +33,7 @@ def get_fare_class_price(flight, fare_class):
             2: discount.business_class_discount,
             3: discount.economy_class_discount,
         }
-        return ticket_price * (1 - discount_fields[fare_class.pk] * decimal.Decimal(0.01))
+        return round(ticket_price * (1 - discount_fields[fare_class.pk] * decimal.Decimal(0.01)), 2)
     else:
         return ticket_price
 
@@ -100,6 +100,25 @@ def send_email(request, booking):
     )
 
 
+def ticket_price_calculate(flight, fare_class, lunch, n_bags,):
+    total_price = 0
+    fare_class_price = get_fare_class_price(flight, fare_class)
+    comforts_prices = ComfortsPrice.objects.get(fare_class=fare_class)
+    if lunch:
+        total_price += comforts_prices.lunch_price
+    if n_bags == 0:
+        bags_price = 0
+    elif n_bags == 1:
+        bags_price = comforts_prices.first_bag_price
+    elif n_bags == 2:
+        bags_price = comforts_prices.first_bag_price + comforts_prices.second_bag_price
+    else:
+        bags_price = comforts_prices.three_or_more_bags_price
+
+    total_price += fare_class_price + bags_price
+    return total_price
+
+
 def ticket_search(request):
     if request.method == 'POST':
         form = FlightSearchForm(request.POST)
@@ -152,25 +171,6 @@ def ticket_search(request):
     else:
         form = FlightSearchForm()
         return render(request, "passenger_interface/ticket_search.html", {'form': form, 'initial': True})
-
-
-def ticket_price_calculate(flight, fare_class, lunch, n_bags,):
-    total_price = 0
-    fare_class_price = get_fare_class_price(flight, fare_class)
-    comforts_prices = ComfortsPrice.objects.get(fare_class=fare_class)
-    if lunch:
-        total_price += comforts_prices.lunch_price
-    if n_bags == 0:
-        bags_price = 0
-    elif n_bags == 1:
-        bags_price = comforts_prices.first_bag_price
-    elif n_bags == 2:
-        bags_price = comforts_prices.first_bag_price + comforts_prices.second_bag_price
-    else:
-        bags_price = comforts_prices.three_or_more_bags_price
-
-    total_price += fare_class_price + bags_price
-    return total_price
 
 
 @login_required

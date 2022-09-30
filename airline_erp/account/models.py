@@ -44,6 +44,7 @@ class StaffProfile(models.Model):
 
     role = models.CharField(max_length=50, choices=role_choices)
 
+
     def __str__(self):
         return f"{self.user} staff profile"
 
