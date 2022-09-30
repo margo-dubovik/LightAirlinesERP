@@ -94,7 +94,7 @@ def passenger_login(request):
             user = authenticate(username=cd['email'], password=cd['password'])
             if user is not None:
                 if user.is_active:
-                    if not user.is_staff:
+                    if not user.is_airline_staff:
                         login(request, user)
                         messages.success(request, 'Logged in successfully')
                         next_param = request.GET.get('next')
@@ -109,7 +109,7 @@ def passenger_login(request):
                 else:
                     messages.error(request, 'The account is deactivated')
             else:
-                messages.error(request, 'user not found')
+                messages.error(request, 'User not found')
         return render(request, 'account/login.html', {'form': form, 'login_title': 'Log In', 'passenger': True, })
     else:
         form = LoginForm()
@@ -131,7 +131,7 @@ def staff_login(request):
                     messages.error(request, 'This account is not a staff member! Please use "Log In"')
                     return redirect(reverse('passenger-login'))
             else:
-                messages.error(request, 'user not found')
+                messages.error(request, 'User not found')
         return render(request, 'account/login.html', {'form': form, 'login_title': 'Staff Log In', })
     else:
         form = LoginForm()
