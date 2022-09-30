@@ -31,6 +31,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'damp-peak-76120.herokuapp.com']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://damp-peak-76120.herokuapp.com'
+]
+
+
 AUTH_USER_MODEL = 'account.CustomUser'
 
 # Application definition
@@ -166,14 +171,6 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
 ]
 
-INTERNAL_IPS = [
-    "127.0.0.1",
-]
-
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://damp-peak-76120.herokuapp.com'
-]
 
 
 
