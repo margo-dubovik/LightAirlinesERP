@@ -2,11 +2,11 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .models import CustomUser, PassengerProfile, StaffProfile
-from .forms import CustomUserCreationForm, StaffUserCreationForm, CustomUserChangeForm
+from .forms import CustomUserCreationForm, StaffUserCreationForm, CustomUserChangeForm, UserCreationAdminForm
 
 
 class CustomUserAdmin(UserAdmin):
-    add_form = StaffUserCreationForm
+    add_form = UserCreationAdminForm
     form = CustomUserChangeForm
     model = CustomUser
     list_display = ('email', 'is_airline_staff', 'is_staff', 'is_active',)
