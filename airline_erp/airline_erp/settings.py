@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'damp-peak-76120.herokuapp.com']
 
 AUTH_USER_MODEL = 'account.CustomUser'
 
@@ -159,6 +159,17 @@ AUTHENTICATION_BACKENDS = [
 
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://damp-peak-76120.herokuapp.com'
+]
+
+
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_USER_FIELDS = ['email']
