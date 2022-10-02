@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+
+{% if email %}
+<p> Hello, {{ user.first_name }}! Here are your tickets.</p>
+{% else %}
+<p>Here are your tickets for this booking.</p>
+{% endif %}
+
+<div class="container">
+    {% for ticket in tickets %}
+    <article class="card" style="width: 20rem; border-style: solid; border-width: 2px; border-radius: 3px;">
+        <div class="card-body">
+            <p class="card-text"><small>passenger name: </small>
+                <strong>{{ ticket.passenger_first_name }} {{ ticket.passenger_last_name }}</strong>
+            </p>
+            <p class="card-text"><small>from: </small><strong>{{ flight.origin.city }} / {{ flight.origin.iata }}</strong></p>
+            <p class="card-text"><small>to: </small><strong>{{ flight.destination.city }} / {{ flight.destination.iata }}</strong></p>
+            <time datetime="{{ flight.departure_time }}" class="card-text">
+              <span><small>departure: </small> {{ flight.departure_time }}</span>
+            </time>
+            <p class="card-text">class:
+                <span class="card-text" style="text-transform:uppercase">{{ ticket.fare_class.name }}</span>
+            </p>
+            <p class="card-text"><small>ticket code: </small><strong>{{ ticket.ticket_code }}</strong></p>
+        </div>
+    </article>
+
+    {% endfor %}
+ </div>
+
+</body>
+</html>

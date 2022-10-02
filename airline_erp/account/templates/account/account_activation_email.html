@@ -1,0 +1,7 @@
+{% autoescape off %}
+Hello, {{ user.first_name }}.
+By clicking on the following link, you are confirming your email address.
+
+http://{{ domain }}{% url 'activate-passenger' uidb64=uid token=token %}?next={{ next|urlencode }}
+
+{% endautoescape %}

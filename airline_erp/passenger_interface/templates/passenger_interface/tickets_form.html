@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<div class="container">
+    <h3>Flight:</h3>
+    <article class="list-group-item" style="width: 30rem;">
+        <p><small>from: </small><strong>{{ flight.origin.city }} / {{ flight.origin.iata }}</strong></p>
+        <p><small>to: </small><strong>{{ flight.destination.city }} / {{ flight.destination.iata }}</strong></p>
+        <time datetime="{{ flight.departure_time }}">
+          <span><small>departure: </small><strong> {{ flight.departure_time }}</strong></span>
+        </time>
+        <br>
+        <p><small>duration: </small> {{ flight.duration }} hours</p>
+    </article>
+</div>
+<br>
+<div class="container">
+    <h3>Enter passengers data:</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset.forms %}
+        <article class="list-group-item" style="width: 40rem;">
+            <div class="position-absolute top-0 end-0 alert alert-info">
+                <p>ticket price: {{ one_ticket_price }}€</p>
+                <p>lunch price: {{ comforts_prices.lunch_price }}€</p>
+                <p>first bag price: {{ comforts_prices.first_bag_price }}€</p>
+                <p>second bag price: {{ comforts_prices.second_bag_price }}€</p>
+                <p>3+ bags price: {{ comforts_prices.three_or_more_bags_price }}€</p>
+            </div>
+            <h5>Passenger {{ forloop.counter }}</h5>
+                {{ form.as_p }}
+            <p>Fare class:<strong> {{ fare_class }}</strong></p>
+        </article>
+        <br>
+        {% endfor %}
+        <br>
+
+        {% if total_booking_price %}
+            <p><span class="alert alert-info"> Booking total price: <strong>{{ total_booking_price }}€</strong></span></p>
+            <input name="confirmed" type='hidden' value="True">
+            <br>
+            <button type="submit" class="btn btn-primary">Order tickets</button>
+        {% else %}
+            <button type="submit" class="btn btn-primary">Calculate booking price</button>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

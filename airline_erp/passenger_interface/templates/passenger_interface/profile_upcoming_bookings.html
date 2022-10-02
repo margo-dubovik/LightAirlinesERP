@@ -1,0 +1,24 @@
+{% extends 'profile_base.html' %}
+{% block profile_content %}
+
+<h1>Upcoming bookings:</h1>
+<ul class="list-group">
+  {% for booking in bookings %}
+  <li class="list-group-item" style="width: 30rem;">
+    <p><small>from: </small><strong>{{ booking.flight.origin.city }} / {{ booking.flight.origin.iata }}</strong></p>
+    <p><small>to: </small><strong>{{ booking.flight.destination.city }} / {{ booking.flight.destination.iata }}</strong></p>
+    <time datetime="{{ flight.departure_time }}">
+      <span><small>departure: </small> {{ booking.flight.departure_time }}</span>
+    </time>
+    <p><small>duration: </small> {{ booking.flight.duration }} hours</p>
+    <p><small>booking price: </small> {{ booking.total_price }}€</p>
+    <a href="{% url 'booking-details' booking_id=booking.pk %}?" class="btn btn-dark">
+      Details
+    </a>
+  </li>
+  {% empty %}
+    <p>No upcoming bookings yet.</p>
+  {% endfor %}
+</ul>
+
+{% endblock %}
