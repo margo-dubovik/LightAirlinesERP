@@ -13,3 +13,4 @@ Staff interface:
 - supervisor can do all managers' actions, add/cancel a flight, add/remove a manager.
 
 
+
