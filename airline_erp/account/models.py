@@ -44,9 +44,18 @@ class StaffProfile(models.Model):
 
     role = models.CharField(max_length=50, choices=role_choices)
 
-
     def __str__(self):
         return f"{self.user} staff profile"
+
+    @property
+    def is_gate_manager(self):
+        return self.role == 'gate_manager'
+
+    def is_check_in_manager(self):
+        return self.role == 'checkin_manager'
+
+    def is_supervisor(self):
+        return self.role == 'supervisor'
 
 
 def create_profile(sender, instance, created, **kwargs):

@@ -17,38 +17,27 @@ from passenger_interface.views import get_baggage_price
 
 CustomUser = get_user_model()
 
-def is_gate_manager(user):
-    return user.staff_profile.role == 'gate_manager'
-
-
-def is_check_in_manager(user):
-    return user.staff_profile.role == 'checkin_manager'
-
-
-def is_supervisor(user):
-    return user.staff_profile.role == 'supervisor'
-
 
 @login_required
 @user_passes_test(lambda u: u.is_airline_staff)
 def staff_profile_redirect(request):
-    if is_gate_manager(request.user):
+    if request.user.staff_profile.is_gate_manager:
         return redirect(reverse('gate-manager-profile', kwargs={'id': request.user.staff_profile.pk}))
-    if is_check_in_manager(request.user):
+    if request.user.staff_profile.is_check_in_manager:
         return redirect(reverse('checkin-manager-profile', kwargs={'id': request.user.staff_profile.pk}))
-    if is_supervisor(request.user):
+    if request.user.staff_profile.is_supervisor:
         return redirect(reverse('supervisor-profile', kwargs={'id': request.user.staff_profile.pk}))
 
 
 @login_required
-@user_passes_test(lambda u: is_gate_manager(u) or is_supervisor(u))
+@user_passes_test(lambda u: u.staff_profile.is_gate_manager or u.staff_profile.is_supervisor)
 def gate_manager_profile(request, id):
     profile = get_object_or_404(StaffProfile, pk=id)
     return render(request, 'staff_interface/gate_manager_profile.html', {'profile': profile})
 
 
 @login_required
-@user_passes_test(lambda u: is_gate_manager(u) or is_supervisor(u))
+@user_passes_test(lambda u: u.staff_profile.is_gate_manager or u.staff_profile.is_supervisor)
 def register_boarding(request):
     confirmed = request.GET.get('confirmed')
     ticket_code = request.GET.get('ticket_code')
@@ -94,14 +83,14 @@ def register_boarding(request):
 
 
 @login_required
-@user_passes_test(lambda u: is_check_in_manager(u) or is_supervisor(u))
+@user_passes_test(lambda u: u.staff_profile.is_check_in_manager or u.staff_profile.is_supervisor)
 def checkin_manager_profile(request, id):
     profile = get_object_or_404(StaffProfile, pk=id)
     return render(request, 'staff_interface/checkin_manager_profile.html', {'profile': profile})
 
 
 @login_required
-@user_passes_test(lambda u: is_check_in_manager(u) or is_supervisor(u))
+@user_passes_test(lambda u: u.staff_profile.is_check_in_manager or u.staff_profile.is_supervisor)
 def checkin_passenger(request):
     confirmed = request.GET.get('confirmed')
     ticket_code = request.GET.get('ticket_code')
@@ -146,7 +135,7 @@ def checkin_passenger(request):
 
 
 @login_required
-@user_passes_test(lambda u: is_check_in_manager(u) or is_supervisor(u))
+@user_passes_test(lambda u: u.staff_profile.is_check_in_manager or u.staff_profile.is_supervisor)
 def checkin_add_options(request):
     ticket_code = request.GET.get('ticket_code')
     ticket = Ticket.objects.get(ticket_code=ticket_code)
@@ -176,20 +165,20 @@ def checkin_add_options(request):
 
 
 @login_required
-@user_passes_test(is_supervisor)
+@user_passes_test(lambda u: u.staff_profile.is_supervisor)
 def supervisor_profile(request, id):
     profile = get_object_or_404(StaffProfile, pk=id)
     return render(request, 'staff_interface/supervisor_profile.html', {'profile': profile})
 
 
 @login_required
-@user_passes_test(is_supervisor)
+@user_passes_test(lambda u: u.staff_profile.is_supervisor)
 def managers_actions(request):
     return render(request, 'staff_interface/managers_actions.html')
 
 
 @login_required
-@user_passes_test(is_supervisor)
+@user_passes_test(lambda u: u.staff_profile.is_supervisor)
 def managers_list(request):
     manager_type = request.GET.get('manager_type')
     managers = StaffProfile.objects.filter(role=manager_type)
@@ -198,7 +187,7 @@ def managers_list(request):
 
 
 @login_required
-@user_passes_test(is_supervisor)
+@user_passes_test(lambda u: u.staff_profile.is_supervisor)
 def add_manager(request):
     if request.method == 'POST':
         creation_form = StaffUserCreationForm(request.POST, prefix='staff_user')
@@ -229,7 +218,7 @@ def add_manager(request):
 
 
 @login_required
-@user_passes_test(is_supervisor)
+@user_passes_test(lambda u: u.staff_profile.is_supervisor)
 def remove_manager(request):
     confirmed = request.GET.get('confirmed')
     manager_id = request.GET.get('manager_id')
@@ -258,13 +247,13 @@ def remove_manager(request):
 
 
 @login_required
-@user_passes_test(is_supervisor)
+@user_passes_test(lambda u: u.staff_profile.is_supervisor)
 def flights_actions(request):
     return render(request, 'staff_interface/flights_actions.html')
 
 
 @login_required
-@user_passes_test(is_supervisor)
+@user_passes_test(lambda u: u.staff_profile.is_supervisor)
 def add_flight(request):
     if request.method == 'POST':
         form = AddFlightForm(request.POST)
@@ -280,7 +269,7 @@ def add_flight(request):
 
 
 @login_required
-@user_passes_test(is_supervisor)
+@user_passes_test(lambda u: u.staff_profile.is_supervisor)
 def cancel_flight(request):
     confirmed = request.GET.get('confirmed')
     flight_id = request.GET.get('flight_id')
