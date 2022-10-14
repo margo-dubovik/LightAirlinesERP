@@ -51,9 +51,11 @@ class StaffProfile(models.Model):
     def is_gate_manager(self):
         return self.role == 'gate_manager'
 
+    @property
     def is_check_in_manager(self):
         return self.role == 'checkin_manager'
 
+    @property
     def is_supervisor(self):
         return self.role == 'supervisor'
 

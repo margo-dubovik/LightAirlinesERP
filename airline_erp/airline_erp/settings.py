@@ -12,13 +12,13 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 
 from pathlib import Path
 from dotenv import load_dotenv
+from django.contrib.messages import constants as messages
 import os
 
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -34,7 +34,6 @@ ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'damp-peak-76120.herokuapp
 CSRF_TRUSTED_ORIGINS = [
     'https://damp-peak-76120.herokuapp.com'
 ]
-
 
 AUTH_USER_MODEL = 'account.CustomUser'
 
@@ -91,7 +90,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'airline_erp.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
@@ -106,12 +104,10 @@ DATABASES = {
     }
 }
 
-
 import dj_database_url
 
 db_from_env = dj_database_url.config()
 DATABASES['default'].update(db_from_env)
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
@@ -131,7 +127,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
@@ -142,7 +137,6 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
@@ -156,7 +150,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 LOGIN_URL = '/account/passenger/login/'
 
-
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_FROM_USER = os.environ.get('EMAIL_HOST_USER')
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
@@ -164,15 +157,11 @@ EMAIL_HOST_PASSWORD = os.environ.get('APP_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-
 AUTHENTICATION_BACKENDS = [
     'social_core.backends.google.GoogleOAuth2',
 
     'django.contrib.auth.backends.ModelBackend',
 ]
-
-
-
 
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
 SOCIAL_AUTH_USER_FIELDS = ['email']
@@ -182,3 +171,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get('MY_GOOGLE_SECRET_KEY')
 SOCIAL_AUTH_LOGIN_REDIRECT_URL = '/account/'
 SOCIAL_AUTH_REDIRECT_IS_HTTPS = True
 
+# For error messages to be red colored
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}

@@ -1,10 +1,15 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.views import redirect_to_login
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from django.contrib import messages
 from django.conf import settings
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
+from django.views.generic import TemplateView
 
 from account.models import StaffProfile
 from account.forms import StaffUserCreationForm
@@ -29,11 +34,36 @@ def staff_profile_redirect(request):
         return redirect(reverse('supervisor-profile', kwargs={'id': request.user.staff_profile.pk}))
 
 
-@login_required
-@user_passes_test(lambda u: u.staff_profile.is_gate_manager or u.staff_profile.is_supervisor)
-def gate_manager_profile(request, id):
-    profile = get_object_or_404(StaffProfile, pk=id)
-    return render(request, 'staff_interface/gate_manager_profile.html', {'profile': profile})
+# @login_required
+# @user_passes_test(lambda u: u.staff_profile.is_gate_manager or u.staff_profile.is_supervisor)
+# def gate_manager_profile(request, id):
+#     profile = get_object_or_404(StaffProfile, pk=id)
+#     return render(request, 'staff_interface/gate_manager_profile.html', {'profile': profile})
+
+class IsGateManagerMixin:
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect_to_login(login_url=reverse('staff-login'), next=request.path)
+        if request.user.is_airline_staff:
+            if self.request.user.staff_profile.is_gate_manager or self.request.user.staff_profile.is_supervisor:
+                return super().dispatch(request, *args, **kwargs)
+            else:
+                messages.error(request, "Permission Denied!")
+                return redirect(to=reverse('staff-profile-redirect'))
+        else:
+            messages.error(request, "Permission Denied!")
+            return redirect(to=reverse('ticket-search'))
+
+
+class GateManagerProfile(IsGateManagerMixin, TemplateView):
+
+    template_name = 'staff_interface/gate_manager_profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile'] = get_object_or_404(StaffProfile, pk=kwargs['id'])
+        return context
 
 
 @login_required

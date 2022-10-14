@@ -1,9 +1,10 @@
 from django.urls import path, include
 from . import views
+from .views import GateManagerProfile
 
 urlpatterns = [
     path('profile/', views.staff_profile_redirect, name="staff-profile-redirect"),
-    path('profile/gate-manager/<int:id>', views.gate_manager_profile, name="gate-manager-profile"),
+    path('profile/gate-manager/<int:id>', GateManagerProfile.as_view(), name="gate-manager-profile"),
     path('register-boarding/', views.register_boarding, name="register-boarding"),
     path('profile/checkin-manager/<int:id>', views.checkin_manager_profile, name="checkin-manager-profile"),
     path('checkin/', views.checkin_passenger, name="checkin"),
