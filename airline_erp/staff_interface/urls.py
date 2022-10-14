@@ -13,7 +13,7 @@ urlpatterns = [
     path('supervisor/managers-list', views.ManagersList.as_view(), name="managers-list"),
     path('supervisor/add-manager', views.add_manager, name="add-manager"),
     path('supervisor/remove-manager', views.remove_manager, name="remove-manager"),
-    path('supervisor/flights-actions', views.flights_actions, name="flights-actions"),
+    path('supervisor/flights-actions', views.FlightsActions.as_view(), name="flights-actions"),
     path('supervisor/add-flight', views.add_flight, name="add-flight"),
     path('supervisor/cancel-flight', views.cancel_flight, name="cancel-flight"),
 ]

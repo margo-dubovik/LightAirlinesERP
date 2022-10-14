@@ -308,10 +308,9 @@ def remove_manager(request):
         return render(request, 'staff_interface/remove_manager.html', {'form': form, })
 
 
-@login_required
-@user_passes_test(lambda u: u.staff_profile.is_supervisor)
-def flights_actions(request):
-    return render(request, 'staff_interface/flights_actions.html')
+class FlightsActions(SupervisorAccessMixin, TemplateView):
+
+    template_name = 'staff_interface/flights_actions.html'
 
 
 @login_required
