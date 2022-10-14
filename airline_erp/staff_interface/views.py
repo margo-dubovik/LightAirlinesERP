@@ -222,12 +222,6 @@ class SupervisorAccessMixin:
             messages.error(request, "Permission Denied!")
             return redirect(to=reverse('ticket-search'))
 
-# @login_required
-# @user_passes_test(lambda u: u.staff_profile.is_supervisor)
-# def supervisor_profile(request, id):
-#     profile = get_object_or_404(StaffProfile, pk=id)
-#     return render(request, 'staff_interface/supervisor_profile.html', {'profile': profile})
-
 
 class SupervisorProfile(SupervisorAccessMixin, TemplateView):
 
@@ -239,10 +233,9 @@ class SupervisorProfile(SupervisorAccessMixin, TemplateView):
         return context
 
 
-@login_required
-@user_passes_test(lambda u: u.staff_profile.is_supervisor)
-def managers_actions(request):
-    return render(request, 'staff_interface/managers_actions.html')
+class ManagersActions(SupervisorAccessMixin, TemplateView):
+
+    template_name = 'staff_interface/managers_actions.html'
 
 
 @login_required
