@@ -52,7 +52,7 @@ class StaffProfile(models.Model):
         return self.role == 'gate_manager'
 
     @property
-    def is_check_in_manager(self):
+    def is_checkin_manager(self):
         return self.role == 'checkin_manager'
 
     @property

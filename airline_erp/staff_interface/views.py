@@ -28,19 +28,13 @@ CustomUser = get_user_model()
 def staff_profile_redirect(request):
     if request.user.staff_profile.is_gate_manager:
         return redirect(reverse('gate-manager-profile', kwargs={'id': request.user.staff_profile.pk}))
-    if request.user.staff_profile.is_check_in_manager:
+    if request.user.staff_profile.is_checkin_manager:
         return redirect(reverse('checkin-manager-profile', kwargs={'id': request.user.staff_profile.pk}))
     if request.user.staff_profile.is_supervisor:
         return redirect(reverse('supervisor-profile', kwargs={'id': request.user.staff_profile.pk}))
 
 
-# @login_required
-# @user_passes_test(lambda u: u.staff_profile.is_gate_manager or u.staff_profile.is_supervisor)
-# def gate_manager_profile(request, id):
-#     profile = get_object_or_404(StaffProfile, pk=id)
-#     return render(request, 'staff_interface/gate_manager_profile.html', {'profile': profile})
-
-class IsGateManagerMixin:
+class GateManagerAccessMixin:
 
     def dispatch(self, request, *args, **kwargs):
         if not request.user.is_authenticated:
@@ -56,7 +50,23 @@ class IsGateManagerMixin:
             return redirect(to=reverse('ticket-search'))
 
 
-class GateManagerProfile(IsGateManagerMixin, TemplateView):
+class CheckinManagerAccessMixin:
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect_to_login(login_url=reverse('staff-login'), next=request.path)
+        if request.user.is_airline_staff:
+            if self.request.user.staff_profile.is_checkin_manager or self.request.user.staff_profile.is_supervisor:
+                return super().dispatch(request, *args, **kwargs)
+            else:
+                messages.error(request, "Permission Denied!")
+                return redirect(to=reverse('staff-profile-redirect'))
+        else:
+            messages.error(request, "Permission Denied!")
+            return redirect(to=reverse('ticket-search'))
+
+
+class GateManagerProfile(GateManagerAccessMixin, TemplateView):
 
     template_name = 'staff_interface/gate_manager_profile.html'
 
@@ -112,15 +122,19 @@ def register_boarding(request):
         return render(request, 'staff_interface/register_boarding.html', {'form': form, })
 
 
-@login_required
-@user_passes_test(lambda u: u.staff_profile.is_check_in_manager or u.staff_profile.is_supervisor)
-def checkin_manager_profile(request, id):
-    profile = get_object_or_404(StaffProfile, pk=id)
-    return render(request, 'staff_interface/checkin_manager_profile.html', {'profile': profile})
+
+class CheckinManagerProfile(CheckinManagerAccessMixin, TemplateView):
+
+    template_name = 'staff_interface/checkin_manager_profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile'] = get_object_or_404(StaffProfile, pk=kwargs['id'])
+        return context
 
 
 @login_required
-@user_passes_test(lambda u: u.staff_profile.is_check_in_manager or u.staff_profile.is_supervisor)
+@user_passes_test(lambda u: u.staff_profile.is_checkin_manager or u.staff_profile.is_supervisor)
 def checkin_passenger(request):
     confirmed = request.GET.get('confirmed')
     ticket_code = request.GET.get('ticket_code')
@@ -165,7 +179,7 @@ def checkin_passenger(request):
 
 
 @login_required
-@user_passes_test(lambda u: u.staff_profile.is_check_in_manager or u.staff_profile.is_supervisor)
+@user_passes_test(lambda u: u.staff_profile.is_checkin_manager or u.staff_profile.is_supervisor)
 def checkin_add_options(request):
     ticket_code = request.GET.get('ticket_code')
     ticket = Ticket.objects.get(ticket_code=ticket_code)

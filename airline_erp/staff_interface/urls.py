@@ -1,12 +1,12 @@
 from django.urls import path, include
 from . import views
-from .views import GateManagerProfile
+from .views import GateManagerProfile, CheckinManagerProfile
 
 urlpatterns = [
     path('profile/', views.staff_profile_redirect, name="staff-profile-redirect"),
     path('profile/gate-manager/<int:id>', GateManagerProfile.as_view(), name="gate-manager-profile"),
     path('register-boarding/', views.register_boarding, name="register-boarding"),
-    path('profile/checkin-manager/<int:id>', views.checkin_manager_profile, name="checkin-manager-profile"),
+    path('profile/checkin-manager/<int:id>', CheckinManagerProfile.as_view(), name="checkin-manager-profile"),
     path('checkin/', views.checkin_passenger, name="checkin"),
     path('checkin-options/', views.checkin_add_options, name="checkin-options"),
     path('profile/supervisor/<int:id>', views.supervisor_profile, name="supervisor-profile"),
