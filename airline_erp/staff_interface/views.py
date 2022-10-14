@@ -1,7 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.views import redirect_to_login
-from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render, redirect, get_object_or_404
@@ -43,10 +42,10 @@ class GateManagerAccessMixin:
             if self.request.user.staff_profile.is_gate_manager or self.request.user.staff_profile.is_supervisor:
                 return super().dispatch(request, *args, **kwargs)
             else:
-                messages.error(request, "Permission Denied!")
+                messages.error(request, "Access Denied!")
                 return redirect(to=reverse('staff-profile-redirect'))
         else:
-            messages.error(request, "Permission Denied!")
+            messages.error(request, "Access Denied!")
             return redirect(to=reverse('ticket-search'))
 
 
@@ -115,10 +114,10 @@ class CheckinManagerAccessMixin:
             if self.request.user.staff_profile.is_checkin_manager or self.request.user.staff_profile.is_supervisor:
                 return super().dispatch(request, *args, **kwargs)
             else:
-                messages.error(request, "Permission Denied!")
+                messages.error(request, "Access Denied!")
                 return redirect(to=reverse('staff-profile-redirect'))
         else:
-            messages.error(request, "Permission Denied!")
+            messages.error(request, "Access Denied!")
             return redirect(to=reverse('ticket-search'))
 
 
@@ -216,10 +215,10 @@ class SupervisorAccessMixin:
             if self.request.user.staff_profile.is_supervisor:
                 return super().dispatch(request, *args, **kwargs)
             else:
-                messages.error(request, "Permission Denied!")
+                messages.error(request, "Access Denied!")
                 return redirect(to=reverse('staff-profile-redirect'))
         else:
-            messages.error(request, "Permission Denied!")
+            messages.error(request, "Access Denied!")
             return redirect(to=reverse('ticket-search'))
 
 
@@ -238,13 +237,15 @@ class ManagersActions(SupervisorAccessMixin, TemplateView):
     template_name = 'staff_interface/managers_actions.html'
 
 
-@login_required
-@user_passes_test(lambda u: u.staff_profile.is_supervisor)
-def managers_list(request):
-    manager_type = request.GET.get('manager_type')
-    managers = StaffProfile.objects.filter(role=manager_type)
-    return render(request, 'staff_interface/managers_list.html',
-                  {'managers': managers, 'manager_type': manager_type, })
+class ManagersList(SupervisorAccessMixin, TemplateView):
+
+    template_name = 'staff_interface/managers_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['manager_type'] = self.request.GET.get('manager_type')
+        context['managers'] = StaffProfile.objects.filter(role=context['manager_type'])
+        return context
 
 
 @login_required
