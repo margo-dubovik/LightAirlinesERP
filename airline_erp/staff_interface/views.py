@@ -50,22 +50,6 @@ class GateManagerAccessMixin:
             return redirect(to=reverse('ticket-search'))
 
 
-class CheckinManagerAccessMixin:
-
-    def dispatch(self, request, *args, **kwargs):
-        if not request.user.is_authenticated:
-            return redirect_to_login(login_url=reverse('staff-login'), next=request.path)
-        if request.user.is_airline_staff:
-            if self.request.user.staff_profile.is_checkin_manager or self.request.user.staff_profile.is_supervisor:
-                return super().dispatch(request, *args, **kwargs)
-            else:
-                messages.error(request, "Permission Denied!")
-                return redirect(to=reverse('staff-profile-redirect'))
-        else:
-            messages.error(request, "Permission Denied!")
-            return redirect(to=reverse('ticket-search'))
-
-
 class GateManagerProfile(GateManagerAccessMixin, TemplateView):
 
     template_name = 'staff_interface/gate_manager_profile.html'
@@ -121,6 +105,21 @@ def register_boarding(request):
         form = TicketCodeForm()
         return render(request, 'staff_interface/register_boarding.html', {'form': form, })
 
+
+class CheckinManagerAccessMixin:
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect_to_login(login_url=reverse('staff-login'), next=request.path)
+        if request.user.is_airline_staff:
+            if self.request.user.staff_profile.is_checkin_manager or self.request.user.staff_profile.is_supervisor:
+                return super().dispatch(request, *args, **kwargs)
+            else:
+                messages.error(request, "Permission Denied!")
+                return redirect(to=reverse('staff-profile-redirect'))
+        else:
+            messages.error(request, "Permission Denied!")
+            return redirect(to=reverse('ticket-search'))
 
 
 class CheckinManagerProfile(CheckinManagerAccessMixin, TemplateView):
@@ -208,11 +207,36 @@ def checkin_add_options(request):
                       {'form': form, 'ticket': ticket, 'flight': flight})
 
 
-@login_required
-@user_passes_test(lambda u: u.staff_profile.is_supervisor)
-def supervisor_profile(request, id):
-    profile = get_object_or_404(StaffProfile, pk=id)
-    return render(request, 'staff_interface/supervisor_profile.html', {'profile': profile})
+class SupervisorAccessMixin:
+
+    def dispatch(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return redirect_to_login(login_url=reverse('staff-login'), next=request.path)
+        if request.user.is_airline_staff:
+            if self.request.user.staff_profile.is_supervisor:
+                return super().dispatch(request, *args, **kwargs)
+            else:
+                messages.error(request, "Permission Denied!")
+                return redirect(to=reverse('staff-profile-redirect'))
+        else:
+            messages.error(request, "Permission Denied!")
+            return redirect(to=reverse('ticket-search'))
+
+# @login_required
+# @user_passes_test(lambda u: u.staff_profile.is_supervisor)
+# def supervisor_profile(request, id):
+#     profile = get_object_or_404(StaffProfile, pk=id)
+#     return render(request, 'staff_interface/supervisor_profile.html', {'profile': profile})
+
+
+class SupervisorProfile(SupervisorAccessMixin, TemplateView):
+
+    template_name = 'staff_interface/supervisor_profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['profile'] = get_object_or_404(StaffProfile, pk=kwargs['id'])
+        return context
 
 
 @login_required

@@ -1,6 +1,6 @@
 from django.urls import path, include
 from . import views
-from .views import GateManagerProfile, CheckinManagerProfile
+from .views import GateManagerProfile, CheckinManagerProfile, SupervisorProfile
 
 urlpatterns = [
     path('profile/', views.staff_profile_redirect, name="staff-profile-redirect"),
@@ -9,7 +9,7 @@ urlpatterns = [
     path('profile/checkin-manager/<int:id>', CheckinManagerProfile.as_view(), name="checkin-manager-profile"),
     path('checkin/', views.checkin_passenger, name="checkin"),
     path('checkin-options/', views.checkin_add_options, name="checkin-options"),
-    path('profile/supervisor/<int:id>', views.supervisor_profile, name="supervisor-profile"),
+    path('profile/supervisor/<int:id>', SupervisorProfile.as_view(), name="supervisor-profile"),
     path('supervisor/managers-actions', views.managers_actions, name="managers-actions"),
     path('supervisor/managers-list', views.managers_list, name="managers-list"),
     path('supervisor/add-manager', views.add_manager, name="add-manager"),
