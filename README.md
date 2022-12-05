@@ -1,6 +1,5 @@
 # ERP system for Airlines
 Consists of two interfaces -- for passengers and for staff.
-<b>Try it [here](https://damp-peak-76120.herokuapp.com/)</b>
 
 Passenger interface:
 - searching for tickets
